@@ -191,11 +191,22 @@ def main():
         return 0
 
     # 1. 源文件检查
+    #
+    # ⚠️ `dsh_workspace.json` **不在仓库里**（它含 token 与本机路径，已 gitignore），
+    # 所以**不能要求它作为源文件存在** —— 那是"克隆下来装不上"的经典写法。
+    # 实测：第一版把它列进 FILES 做存在性检查，全新克隆一跑就
+    #     [X] dsh_workspace.json 不存在 → 安装中止
+    # 而我自己机器上一直有它，所以完全看不出问题。
+    #
+    # 正确做法：.rb / 指南这些**必须**在；配置文件**缺失就现场生成**。
     print('== 1. 检查源文件')
     bad = []
     for src in FILES:
         sp = os.path.join(HERE, src)
         if not os.path.exists(sp):
+            if src == 'dsh_workspace.json':
+                print('   [i] %s 不存在 —— 会现场生成（仓库里刻意不带它）' % src)
+                continue
             bad.append('%s 不存在' % src)
             print('   [X] %s' % src)
             continue
@@ -220,6 +231,10 @@ def main():
         os.makedirs(target, exist_ok=True)
     for src, dst in FILES.items():
         sp, dp = os.path.join(HERE, src), os.path.join(target, dst)
+        if not os.path.exists(sp):
+            # 只有 dsh_workspace.json 会走到这里（第 3 步会现场生成它）
+            print('   [i] %s 不在仓库里，跳过（第 3 步现场生成）' % src)
+            continue
         if args.dry_run:
             print('      [dry-run] %s -> %s' % (src, dp))
             continue

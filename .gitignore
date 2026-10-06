@@ -1,6 +1,7 @@
 # ---- 本机私有：绝不提交 ----
 # 定位文件里有 token（首次运行随机生成）和**本机绝对路径**。
 # 上传它等于把钥匙和你的目录结构一起公开。
+# 注意：它**不是安装的必需输入** —— install.py 在没有它时会自己生成。
 dsh_workspace.json
 dsh_bridge/dsh_workspace.json
 
@@ -9,11 +10,16 @@ dsh_bridge/dsh_workspace.json
 # 想放示例图请用**自己画的**或明确授权的图，并放到 examples/ 下。
 real/
 
-# ⚠️ cad/ 里既有真实图纸，也有工具生成的中间产物 —— 一律不提交。
-# 这一条是被漏掉过的：第一版 .gitignore 只挡了 real/，
-# 结果 cad/project2.dxf（931KB，用户真实的图纸）会跟着进仓库。
-# **按目录整体排除比按扩展名排除可靠**：扩展名总会漏（.dwg/.bak/.sv$…）。
-cad/
+# ⚠️ 数据目录，不是源码目录 —— **必须写前导斜杠**。
+#
+# 踩过：这一条原来写成 `cad/`，而 .gitignore 的 `cad/` 会匹配**任何层级**的
+# cad 目录，于是 `tools/cad/`（DXF 读图工具的**源码**）被整个忽略了 ——
+# dxf_import.py / cad_to_plan.py / dxf_probe.py / dxf_detail.py
+# **四个核心文件根本没进仓库**，而本地一切正常，看不出问题。
+# 直到我写"模拟全新克隆"的测试才发现。
+#
+# 前导 `/` 表示"只匹配仓库根目录下的 cad"。
+/cad/
 # examples/ 下的示例图纸**有意公开**（用户确认有权公开）—— 不要排除
 models/*.skp
 workspace/            # 若有：用户自己的工作产物
@@ -51,3 +57,7 @@ venv/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# ---- 模拟全新克隆的临时目录（verify_fresh_clone.py 生成）----
+/_clone_test/
+
