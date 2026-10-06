@@ -1,0 +1,53 @@
+# ---- 本机私有：绝不提交 ----
+# 定位文件里有 token（首次运行随机生成）和**本机绝对路径**。
+# 上传它等于把钥匙和你的目录结构一起公开。
+dsh_workspace.json
+dsh_bridge/dsh_workspace.json
+
+# ---- 用户数据 / 真实图纸 ----
+# real/ 放的是真实工程图纸（可能是客户资料），不适合进公开仓库。
+# 想放示例图请用**自己画的**或明确授权的图，并放到 examples/ 下。
+real/
+
+# ⚠️ cad/ 里既有真实图纸，也有工具生成的中间产物 —— 一律不提交。
+# 这一条是被漏掉过的：第一版 .gitignore 只挡了 real/，
+# 结果 cad/project2.dxf（931KB，用户真实的图纸）会跟着进仓库。
+# **按目录整体排除比按扩展名排除可靠**：扩展名总会漏（.dwg/.bak/.sv$…）。
+cad/
+# examples/ 下的示例图纸**有意公开**（用户确认有权公开）—— 不要排除
+models/*.skp
+workspace/            # 若有：用户自己的工作产物
+
+# ---- 运行产物 ----
+shots/
+flow_out/
+degrade_out/
+sweep_out/
+tests/shots/
+tests/flow_out/
+tests/degrade_out/
+tests/sweep_out/
+*.log
+bridge.log
+boot_check*.skp
+*.skp
+*.skb
+*.bak
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---- 编辑器 / 系统 ----
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini

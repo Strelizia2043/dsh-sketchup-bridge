@@ -1,0 +1,166 @@
+{
+  "meta": {
+    "name": "集成测试",
+    "units": "mm",
+    "source": "pipeline_plan.png",
+    "unit_original": "mm",
+    "scale_basis": "1px = 13.2304mm，依据：6000.0mm / 453.5px（用户给定基准）",
+    "calibration_source": "dim",
+    "assumptions": [
+      "墙厚由用户提供，未从图上测量（量图误差 5~10%，不可用）",
+      "房间轮廓由墙线围合推断，真图上有隔墙时需人工核对",
+      "洞口类型：洞口内 ≥3 条贯穿线判为窗（medium），否则判为门（low）。该阈值是在合成图上测出来的，真图的窗符号线数可能不同；**门与净洞口在图像层面无法区分**。",
+      "窗的高度 1400、窗台 900 是按常规取的推定值，需用户确认"
+    ]
+  },
+  "floors": [
+    {
+      "name": "F1-楼板",
+      "z": 0,
+      "thickness": 100,
+      "polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          6000,
+          0
+        ],
+        [
+          6000,
+          4796
+        ],
+        [
+          0,
+          4796
+        ]
+      ],
+      "source": "derived",
+      "basis": "由最外两条墙线中心距推算"
+    }
+  ],
+  "walls": [
+    {
+      "name": "W-南",
+      "from": [
+        0,
+        0
+      ],
+      "to": [
+        6000,
+        0
+      ],
+      "thickness": 240.0,
+      "height": 2800,
+      "source": "derived",
+      "basis": "墙线位置由探针测得，墙厚由用户给定",
+      "openings": [
+        {
+          "type": "door",
+          "u": 906,
+          "width": 900,
+          "height": 2100,
+          "sill": 0,
+          "label": "W-南-洞1",
+          "source": "derived",
+          "basis": "由墙上实心段之间的空隙测得；洞口内有 1 条贯穿线（<3，无窗的线特征）",
+          "confidence": "low",
+          "cross_lines": 1,
+          "merged_piers": 0,
+          "note": "判为门：洞口内没有窗的线特征。但**门与净洞口在这个层面无法区分**，需确认；若是窗则高度与窗台高也需给出。"
+        },
+        {
+          "type": "window",
+          "u": 2600,
+          "width": 1495,
+          "height": 1400,
+          "sill": 900,
+          "label": "W-南-洞2",
+          "source": "derived",
+          "basis": "由墙上实心段之间的空隙测得；洞口内有 4 条贯穿线（≥3，符合窗符号特征）",
+          "confidence": "low",
+          "cross_lines": 4,
+          "merged_piers": 1,
+          "note": "⚠️ 这个洞口里并进了 1 段**很窄的墙垛**（比我设的下限还窄）。所以它的宽度**可能实际是两个（或多个）洞口**，请照图纸核对。 判为窗：洞口内有贯穿线，符合窗符号特征。但窗的高度/窗台高是我按常规取的，需确认。"
+        }
+      ]
+    },
+    {
+      "name": "W-北",
+      "from": [
+        0,
+        4796
+      ],
+      "to": [
+        6000,
+        4796
+      ],
+      "thickness": 240.0,
+      "height": 2800,
+      "source": "derived",
+      "basis": "墙线位置由探针测得，墙厚由用户给定",
+      "openings": []
+    },
+    {
+      "name": "W-西",
+      "from": [
+        0,
+        0
+      ],
+      "to": [
+        0,
+        4796
+      ],
+      "thickness": 240.0,
+      "height": 2800,
+      "source": "derived",
+      "basis": "墙线位置由探针测得，墙厚由用户给定",
+      "openings": []
+    },
+    {
+      "name": "W-东",
+      "from": [
+        6000,
+        0
+      ],
+      "to": [
+        6000,
+        4796
+      ],
+      "thickness": 240.0,
+      "height": 2800,
+      "source": "derived",
+      "basis": "墙线位置由探针测得，墙厚由用户给定",
+      "openings": [
+        {
+          "type": "window",
+          "u": 1799,
+          "width": 1191,
+          "height": 1400,
+          "sill": 900,
+          "label": "W-东-洞1",
+          "source": "derived",
+          "basis": "由墙上实心段之间的空隙测得；洞口内有 3 条贯穿线（≥3，符合窗符号特征）",
+          "confidence": "medium",
+          "cross_lines": 3,
+          "merged_piers": 0,
+          "note": "判为窗：洞口内有贯穿线，符合窗符号特征。但窗的高度/窗台高是我按常规取的，需确认。"
+        }
+      ]
+    }
+  ],
+  "rooms": [],
+  "_extraction": {
+    "mm_per_px": 13.23043,
+    "wall_v_px": [
+      249.5,
+      521.5,
+      703.0
+    ],
+    "wall_h_px": [
+      249.0,
+      611.5
+    ]
+  }
+}

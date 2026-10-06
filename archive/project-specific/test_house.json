@@ -1,0 +1,267 @@
+{
+  "meta": {
+    "name": "测试住宅 6×8m",
+    "units": "mm",
+    "note": "这一份是生成器的测试数据，不是从图纸读来的。用来验证：外墙/内墙、门洞（落地）、窗洞（带窗台高度）、多个洞口在同一面墙上的拆分是否正确。"
+  },
+  "floors": [
+    {
+      "name": "F1-地板",
+      "z": 0,
+      "thickness": 100,
+      "polygon": [[0, 0], [6000, 0], [6000, 8000], [0, 8000]]
+    },
+    {
+      "name": "F2-夹层",
+      "z": 2800,
+      "thickness": 120,
+      "polygon": [[3500, 4300], [6000, 4300], [6000, 8000], [3500, 8000]],
+      "source": "assumed",
+      "confidence": "low",
+      "note": "夹层是我为验证楼梯加的，不是图纸内容。楼梯升到 2800 正好接上这块楼板顶面。"
+    }
+  ],
+  "envelope_ceiling": {
+    "thickness": 150,
+    "eave": 0,
+    "z": 3000,
+    "note": "顶板**必须抬到最高楼面之上**：本模型最高楼面（夹层）占 2800..2920，所以顶板放 3000..3150。若写成与夹层同层（2800）就会撞在一起——实测重叠 120mm。"
+  },
+  "stairs": [
+    {
+      "name": "ST1",
+      "from": [2400, 400],
+      "to": [5400, 400],
+      "width": 900,
+      "height": 2800,
+      "steps": 16,
+      "run": 3000,
+      "target_riser": 175,
+      "source": "assumed",
+      "confidence": "medium",
+      "note": "为验证楼梯功能加的例子。起点 x=2400 是**避开入户门**（门洞 x=1200..2200）才有意选的——早先写 x=200 时楼梯正好挡在门口，出门就上踏步。请确认是否保留。"
+    }
+  ],
+  "materials": {
+    "note": "match 是**正则**（Ruby Regexp），按顺序匹配，先命中先用，所以具体的放前面。材质名不存在时会按兜底颜色新建并记进报告——不会悄悄换色，也不会抛异常。",
+    "default": { "name": "涂料", "color": [246, 246, 243] },
+    "rules": [
+      { "match": "-门扇$", "name": "木门", "color": [140, 100, 66] },
+      { "match": "-玻璃$", "name": "玻璃", "color": [178, 214, 226] },
+      { "match": "-框\\d$", "name": "门窗框", "color": [168, 168, 164] },
+      { "match": "-上槛$|-下槛$", "name": "门窗框", "color": [168, 168, 164] },
+      { "match": "-地面$", "name": "木地板", "color": [186, 140, 92] },
+      { "match": "-天花$", "name": "涂料", "color": [250, 250, 248] },
+      { "match": "^ROOF", "name": "屋面", "color": [150, 148, 144] },
+      { "match": "^ST", "name": "混凝土", "color": [200, 200, 198] },
+      { "match": "^F2-", "name": "混凝土", "color": [208, 208, 206] },
+      { "match": "^F1-", "name": "混凝土", "color": [200, 200, 198] },
+      { "match": "^W-", "name": "砌体", "color": [214, 206, 194] },
+      { "match": "^E-", "name": "砌体", "color": [206, 198, 186] }
+    ]
+  },
+
+  "walls": [
+    {
+      "name": "W-南外墙",
+      "from": [0, 0],
+      "to": [6000, 0],
+      "thickness": 240,
+      "height": 2800,
+      "source": "dim",
+      "confidence": "high",
+      "openings": [
+        {
+          "type": "door",
+          "u": 1200,
+          "width": 1000,
+          "height": 2100,
+          "sill": 0,
+          "label": "入户门",
+          "source": "dim",
+          "confidence": "high"
+        },
+        {
+          "type": "window",
+          "u": 3200,
+          "width": 1500,
+          "height": 1400,
+          "sill": 900,
+          "label": "客厅窗",
+          "source": "assumed",
+          "confidence": "medium",
+          "note": "图上只标了窗宽 1500，高度按 1400、窗台 900 推定"
+        }
+      ],
+      "joinery": true
+    },
+    {
+      "name": "W-北外墙",
+      "from": [0, 8000],
+      "to": [6000, 8000],
+      "thickness": 240,
+      "height": 2800,
+      "source": "derived",
+      "basis": "由南外墙厚 240 类推（图纸只标了南墙）",
+      "confidence": "medium",
+      "openings": [
+        {
+          "type": "window",
+          "u": 800,
+          "width": 1200,
+          "height": 1400,
+          "sill": 900,
+          "label": "卧室窗",
+          "source": "dim",
+          "confidence": "high"
+        },
+        {
+          "type": "door",
+          "u": 4200,
+          "width": 900,
+          "height": 2100,
+          "sill": 0,
+          "label": "后门",
+          "source": "dim",
+          "confidence": "high"
+        }
+      ],
+      "joinery": true
+    },
+    {
+      "name": "W-西外墙",
+      "from": [0, 0],
+      "to": [0, 8000],
+      "thickness": 240,
+      "height": 2800,
+      "source": "dim",
+      "confidence": "high",
+      "openings": [
+        {
+          "type": "window",
+          "u": 3000,
+          "width": 900,
+          "height": 1200,
+          "sill": 1500,
+          "label": "卫生间高窗",
+          "source": "derived",
+          "basis": "图上未标高窗尺寸，按同层其他窗高 1200 类推；窗台 1500 是我按卫生间惯例取的",
+          "confidence": "low",
+          "note": "高窗的窗台高度我完全没把握，可能是 1800 或 2100"
+        }
+      ],
+      "joinery": true
+    },
+    {
+      "name": "W-东外墙",
+      "from": [6000, 0],
+      "to": [6000, 8000],
+      "thickness": 240,
+      "height": 2800,
+      "source": "dim",
+      "confidence": "high",
+      "openings": [
+        {
+          "type": "window",
+          "u": 2000,
+          "width": 1800,
+          "height": 1400,
+          "sill": 900,
+          "label": "卧室窗",
+          "source": "dim",
+          "confidence": "high"
+        }
+      ],
+      "joinery": true
+    },
+    {
+      "name": "W-内墙-横",
+      "from": [0, 4200],
+      "to": [6000, 4200],
+      "thickness": 120,
+      "height": 2800,
+      "source": "assumed",
+      "confidence": "medium",
+      "note": "图上没标内墙厚，按常见的 120mm 取",
+      "openings": [
+        {
+          "type": "door",
+          "u": 2600,
+          "width": 900,
+          "height": 2100,
+          "sill": 0,
+          "label": "卧室门",
+          "source": "dim",
+          "confidence": "high"
+        }
+      ],
+      "joinery": true
+    },
+    {
+      "name": "W-内墙-纵",
+      "from": [3500, 4200],
+      "to": [3500, 8000],
+      "thickness": 120,
+      "height": 2800,
+      "source": "assumed",
+      "confidence": "medium",
+      "note": "同上",
+      "openings": [
+        {
+          "type": "door",
+          "u": 800,
+          "width": 800,
+          "height": 2100,
+          "sill": 0,
+          "label": "次卧门",
+          "source": "dim",
+          "confidence": "high"
+        }
+      ],
+      "joinery": true
+    }
+  ],
+  "elevations": [
+    {
+      "name": "E-南立面-女儿墙",
+      "wall": "W-南外墙",
+      "thickness": 200,
+      "base_z": 2950,
+      "profile": [[0, 0], [6000, 0], [6000, 450], [0, 450]],
+      "source": "dim",
+      "confidence": "high",
+      "note": "女儿墙坐在屋面板顶面（base_z=2950）上，自身高 450mm，所以顶面到 3400。用 base_z 而不是把 2950 写进轮廓，是为了让它明确'坐落'在顶板上——否则两者会撞在一起。"
+    },
+    {
+      "name": "E-西立面-女儿墙带洞",
+      "wall": "W-西外墙",
+      "thickness": 200,
+      "base_z": 2950,
+      "profile": [[0, 0], [8000, 0], [8000, 450], [0, 450]],
+      "holes": [
+        [[3000, 150], [3400, 150], [3400, 450], [3000, 450]]
+      ],
+      "source": "assumed",
+      "confidence": "medium",
+      "note": "这里开了个 400×300 的小洞（雨落管检修口之类），洞口从女儿墙顶面往下开。我按常见做法编的，实际图纸上可能没有——请确认。"
+    }
+  ],
+  "rooms": [
+    {
+      "name": "客厅",
+      "polygon": [[120, 120], [5880, 120], [5880, 4080], [120, 4080]],
+      "ceiling_height": 2800,
+      "floor_material": "木地板"
+    },
+    {
+      "name": "主卧",
+      "polygon": [[120, 4320], [3440, 4320], [3440, 7880], [120, 7880]],
+      "ceiling_height": 2800
+    },
+    {
+      "name": "次卧",
+      "polygon": [[3560, 4320], [5880, 4320], [5880, 7880], [3560, 7880]],
+      "ceiling_height": 2800
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "name": "楼梯三态专项测试",
+    "units": "mm",
+    "note": "一次验证三种楼梯形态：单跑（ST1）、双跑（ST2）、四跑等价拆分（ST4）。四跑那条用来表达'中间梯段承接上一跑'——比给双跑加隐式参数更直白。"
+  },
+  "floors": [
+    {
+      "name": "F1-地板",
+      "z": 0,
+      "thickness": 100,
+      "polygon": [[0, 0], [9000, 0], [9000, 3000], [0, 3000]]
+    }
+  ],
+  "walls": [],
+  "stairs": [
+    {
+      "name": "ST1",
+      "from": [200, 200],
+      "to": [4700, 200],
+      "width": 900,
+      "height": 2800,
+      "steps": 16,
+      "run": 4480,
+      "target_riser": 175
+    },
+    {
+      "name": "ST2",
+      "from": [200, 1400],
+      "to": [2400, 1400],
+      "width": 900,
+      "height": 2800,
+      "flights": [
+        { "steps": 8, "run": 2240 },
+        { "steps": 8, "run": 2240 }
+      ],
+      "landing": { "depth": 1200, "thickness": 150 }
+    },
+    {
+      "name": "ST4",
+      "from": [5200, 200],
+      "to": [6320, 200],
+      "width": 900,
+      "height": 2800,
+      "flights": [
+        { "steps": 4, "run": 1120 },
+        { "steps": 4, "run": 1120 },
+        { "steps": 4, "run": 1120 },
+        { "steps": 4, "run": 1120 }
+      ],
+      "landing": { "depth": 900, "thickness": 150 },
+      "source": "assumed",
+      "confidence": "medium",
+      "note": "四跑等价拆分的验证例：每跑 4 级、踏面宽 280。逐跑承接上一跑的顶面，所以不存在悬空楔子的问题。"
+    }
+  ]
+}

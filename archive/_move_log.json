@@ -1,0 +1,210 @@
+[
+ {
+  "from": "dsh_bridge.rb",
+  "to": "dsh_bridge/dsh_bridge.rb"
+ },
+ {
+  "from": "dsh_handlers.rb",
+  "to": "dsh_bridge/dsh_handlers.rb"
+ },
+ {
+  "from": "dsh_loader.rb",
+  "to": "dsh_bridge/dsh_loader.rb"
+ },
+ {
+  "from": "dsh_parts.rb",
+  "to": "dsh_bridge/dsh_parts.rb"
+ },
+ {
+  "from": "DSH-接手指南.md",
+  "to": "dsh_bridge/DSH-接手指南.md"
+ },
+ {
+  "from": "intake_check.py",
+  "to": "tools/img/intake_check.py"
+ },
+ {
+  "from": "extract_plan.py",
+  "to": "tools/img/extract_plan.py"
+ },
+ {
+  "from": "plan_probe.py",
+  "to": "tools/img/plan_probe.py"
+ },
+ {
+  "from": "dxf_probe.py",
+  "to": "tools/cad/dxf_probe.py"
+ },
+ {
+  "from": "dxf_detail.py",
+  "to": "tools/cad/dxf_detail.py"
+ },
+ {
+  "from": "dxf_import.py",
+  "to": "tools/cad/dxf_import.py"
+ },
+ {
+  "from": "dxf_render.py",
+  "to": "tools/cad/dxf_render.py"
+ },
+ {
+  "from": "dxf_draw.py",
+  "to": "tools/cad/dxf_draw.py"
+ },
+ {
+  "from": "cad_to_plan.py",
+  "to": "tools/cad/cad_to_plan.py"
+ },
+ {
+  "from": "build_from_json.py",
+  "to": "tools/build/build_from_json.py"
+ },
+ {
+  "from": "view_mode.py",
+  "to": "tools/build/view_mode.py"
+ },
+ {
+  "from": "check_geometry.py",
+  "to": "tools/build/check_geometry.py"
+ },
+ {
+  "from": "diag_joints.py",
+  "to": "tools/build/diag_joints.py"
+ },
+ {
+  "from": "derive_dims.py",
+  "to": "tools/build/derive_dims.py"
+ },
+ {
+  "from": "test_bridge_protocol.py",
+  "to": "tests/test_bridge_protocol.py"
+ },
+ {
+  "from": "test_degradation.py",
+  "to": "tests/test_degradation.py"
+ },
+ {
+  "from": "test_sweep.py",
+  "to": "tests/test_sweep.py"
+ },
+ {
+  "from": "verify_restart.py",
+  "to": "tests/verify_restart.py"
+ },
+ {
+  "from": "verify_cad.py",
+  "to": "tests/verify_cad.py"
+ },
+ {
+  "from": "verify_parts.py",
+  "to": "tests/verify_parts.py"
+ },
+ {
+  "from": "verify_flow.py",
+  "to": "tests/verify_flow.py"
+ },
+ {
+  "from": "verify_pipeline.py",
+  "to": "tests/verify_pipeline.py"
+ },
+ {
+  "from": "verify_reading.py",
+  "to": "tests/verify_reading.py"
+ },
+ {
+  "from": "make_test_drawing.py",
+  "to": "tests/make_test_drawing.py"
+ },
+ {
+  "from": "cad_project2.py",
+  "to": "archive/one-off/cad_project2.py"
+ },
+ {
+  "from": "cad_extract2.py",
+  "to": "archive/one-off/cad_extract2.py"
+ },
+ {
+  "from": "cad_walls2.py",
+  "to": "archive/one-off/cad_walls2.py"
+ },
+ {
+  "from": "cad_list2.py",
+  "to": "archive/one-off/cad_list2.py"
+ },
+ {
+  "from": "cad_furniture2.py",
+  "to": "archive/one-off/cad_furniture2.py"
+ },
+ {
+  "from": "build_room.py",
+  "to": "archive/one-off/build_room.py"
+ },
+ {
+  "from": "build_room.rb",
+  "to": "archive/one-off/build_room.rb"
+ },
+ {
+  "from": "demo_build.rb",
+  "to": "archive/one-off/demo_build.rb"
+ },
+ {
+  "from": "view_modes.rb",
+  "to": "archive/one-off/view_modes.rb"
+ },
+ {
+  "from": "dsh_bridge_patch.rb",
+  "to": "archive/one-off/dsh_bridge_patch.rb"
+ },
+ {
+  "from": "verify_clean.py",
+  "to": "archive/superseded/verify_clean.py"
+ },
+ {
+  "from": "verify_e2e.py",
+  "to": "archive/superseded/verify_e2e.py"
+ },
+ {
+  "from": "verify_final.py",
+  "to": "archive/superseded/verify_final.py"
+ },
+ {
+  "from": "verify_step.py",
+  "to": "archive/superseded/verify_step.py"
+ },
+ {
+  "from": "verify_hotreload.py",
+  "to": "archive/superseded/verify_hotreload.py"
+ },
+ {
+  "from": "verify_reload_fix.py",
+  "to": "archive/superseded/verify_reload_fix.py"
+ },
+ {
+  "from": "diag_const.py",
+  "to": "archive/diagnostics/diag_const.py"
+ },
+ {
+  "from": "diag_pushpull.py",
+  "to": "archive/diagnostics/diag_pushpull.py"
+ },
+ {
+  "from": "diag_undo.py",
+  "to": "archive/diagnostics/diag_undo.py"
+ },
+ {
+  "from": "diag_ceiling.py",
+  "to": "archive/diagnostics/diag_ceiling.py"
+ },
+ {
+  "from": "diag_reload.py",
+  "to": "archive/diagnostics/diag_reload.py"
+ },
+ {
+  "from": "diag_corners.py",
+  "to": "archive/diagnostics/diag_corners.py"
+ },
+ {
+  "from": "diag_opening_type.py",
+  "to": "archive/diagnostics/diag_opening_type.py"
+ }
+]

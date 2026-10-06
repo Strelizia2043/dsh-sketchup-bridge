@@ -1,0 +1,75 @@
+{
+  "meta": {
+    "name": "坡屋面四形式测试",
+    "units": "mm",
+    "note": "四种屋面形式各建一栋，互不重叠，一次看全：flat / shed / gable / hip。形式由数据的 roof.form 指定——生成器不替你选。"
+  },
+  "floors": [
+    { "name": "G1-地板", "z": 0, "thickness": 100, "polygon": [[0, 0], [6000, 0], [6000, 5000], [0, 5000]] },
+    { "name": "G2-地板", "z": 0, "thickness": 100, "polygon": [[9000, 0], [15000, 0], [15000, 5000], [9000, 5000]] },
+    { "name": "G3-地板", "z": 0, "thickness": 100, "polygon": [[0, 7000], [6000, 7000], [6000, 12000], [0, 12000]] },
+    { "name": "G4-地板", "z": 0, "thickness": 100, "polygon": [[9000, 7000], [15000, 7000], [15000, 12000], [9000, 12000]] }
+  ],
+  "walls": [
+    { "name": "W-A1", "from": [0, 0], "to": [6000, 0], "thickness": 240, "height": 3000 },
+    { "name": "W-A2", "from": [6000, 0], "to": [6000, 5000], "thickness": 240, "height": 3000 },
+    { "name": "W-A3", "from": [6000, 5000], "to": [0, 5000], "thickness": 240, "height": 3000 },
+    { "name": "W-A4", "from": [0, 5000], "to": [0, 0], "thickness": 240, "height": 3000 },
+
+    { "name": "W-B1", "from": [9000, 0], "to": [15000, 0], "thickness": 240, "height": 3000 },
+    { "name": "W-B2", "from": [15000, 0], "to": [15000, 5000], "thickness": 240, "height": 3000 },
+    { "name": "W-B3", "from": [15000, 5000], "to": [9000, 5000], "thickness": 240, "height": 3000 },
+    { "name": "W-B4", "from": [9000, 5000], "to": [9000, 0], "thickness": 240, "height": 3000 },
+
+    { "name": "W-C1", "from": [0, 7000], "to": [6000, 7000], "thickness": 240, "height": 3000 },
+    { "name": "W-C2", "from": [6000, 7000], "to": [6000, 12000], "thickness": 240, "height": 3000 },
+    { "name": "W-C3", "from": [6000, 12000], "to": [0, 12000], "thickness": 240, "height": 3000 },
+    { "name": "W-C4", "from": [0, 12000], "to": [0, 7000], "thickness": 240, "height": 3000 },
+
+    { "name": "W-D1", "from": [9000, 7000], "to": [15000, 7000], "thickness": 240, "height": 3000 },
+    { "name": "W-D2", "from": [15000, 7000], "to": [15000, 12000], "thickness": 240, "height": 3000 },
+    { "name": "W-D3", "from": [15000, 12000], "to": [9000, 12000], "thickness": 240, "height": 3000 },
+    { "name": "W-D4", "from": [9000, 12000], "to": [9000, 7000], "thickness": 240, "height": 3000 }
+  ],
+  "envelope_ceiling": false,
+  "roof": [
+    {
+      "name": "ROOF-A-flat",
+      "form": "flat",
+      "polygon": [[0, 0], [6000, 0], [6000, 5000], [0, 5000]],
+      "thickness": 200, "eave": 0,
+      "source": "assumed", "confidence": "medium",
+      "note": "平屋面：坐在墙顶 3000 上，厚 200。"
+    },
+    {
+      "name": "ROOF-B-shed",
+      "form": "shed",
+      "polygon": [[9000, 0], [15000, 0], [15000, 5000], [9000, 5000]],
+      "thickness": 200, "eave": 400,
+      "pitch": "1:4",
+      "high_on": "y0",
+      "source": "assumed", "confidence": "medium",
+      "note": "单坡：坡度 1:4（约 14°），高侧在 y0（南），向北落水。出挑 400。"
+    },
+    {
+      "name": "ROOF-C-gable",
+      "form": "gable",
+      "polygon": [[0, 7000], [6000, 7000], [6000, 12000], [0, 12000]],
+      "thickness": 200, "eave": 500,
+      "pitch": 30,
+      "dir": "x",
+      "source": "assumed", "confidence": "medium",
+      "note": "双坡：屋脊平行 X（东西向），坡度 30°，出挑 500。"
+    },
+    {
+      "name": "ROOF-D-hip",
+      "form": "hip",
+      "polygon": [[9000, 7000], [15000, 7000], [15000, 12000], [9000, 12000]],
+      "thickness": 200, "eave": 500,
+      "pitch": "35%",
+      "dir": "x",
+      "source": "assumed", "confidence": "low",
+      "note": "四坡：坡度 35%（约 19.3°），出挑 500。标 low 是为了验证它会进疑问清单。"
+    }
+  ]
+}

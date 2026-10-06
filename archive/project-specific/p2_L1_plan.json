@@ -1,0 +1,247 @@
+{
+ "meta": {
+  "name": "designproject2 一层",
+  "units": "mm",
+  "scale_basis": "DXF 实体坐标；外轮廓 8250.00×8250.00 mm",
+  "assumptions": [
+   "墙高 2700.0mm（平面图不标墙高，取配置值）",
+   "门高 2100.0mm"
+  ]
+ },
+ "floors": [
+  {
+   "name": "F1-地板",
+   "z": 0,
+   "thickness": 100,
+   "polygon": [
+    [
+     0,
+     0
+    ],
+    [
+     8250,
+     0
+    ],
+    [
+     8250,
+     8250
+    ],
+    [
+     0,
+     8250
+    ]
+   ],
+   "holes": [
+    {
+     "x0": 2250,
+     "y0": 2250,
+     "x1": 6100,
+     "y1": 6100
+    }
+   ],
+   "source": "dim",
+   "confidence": "high",
+   "basis": "外轮廓 8250×8250 由 DXF 实测（二层 8423-173=8250 印证）；中庭洞按用户说明「这块没有地板」"
+  }
+ ],
+ "walls": [
+  {
+   "name": "W-西外墙",
+   "from": [
+    50.0,
+    50.0
+   ],
+   "to": [
+    50.0,
+    8200.0
+   ],
+   "thickness": 100.0,
+   "height": 2700.0,
+   "source": "dim",
+   "confidence": "high",
+   "basis": "坐标来自 DXF 实体几何（组码 10/11/20/21），单位为mm；外轮廓由配置给出，墙厚/墙高由配置给出",
+   "openings": [
+    {
+     "type": "window",
+     "u": 2200.0,
+     "width": 3750.0,
+     "height": 2700.0,
+     "sill": 0.0,
+     "label": "西-玻璃",
+     "source": "dim",
+     "confidence": "high",
+     "basis": "坐标来自 designproject2.dxf 实体几何；比例 1 单位 = 50mm（用户确认，且二层外轮廓实测 8423-173=8250 印证）；洞口位置与净宽由墙线断开处实测",
+     "note": "外墙上的玻璃洞：落地、到顶（按你说的『墙上面开孔的绿色也是玻璃』）"
+    }
+   ]
+  },
+  {
+   "name": "W-东外墙",
+   "from": [
+    8200.0,
+    50.0
+   ],
+   "to": [
+    8200.0,
+    8200.0
+   ],
+   "thickness": 100.0,
+   "height": 2700.0,
+   "source": "dim",
+   "confidence": "high",
+   "basis": "坐标来自 DXF 实体几何（组码 10/11/20/21），单位为mm；外轮廓由配置给出，墙厚/墙高由配置给出",
+   "openings": [
+    {
+     "type": "window",
+     "u": 4200.0,
+     "width": 1750.0,
+     "height": 2700.0,
+     "sill": 0.0,
+     "label": "东-玻璃",
+     "source": "dim",
+     "confidence": "high",
+     "basis": "坐标来自 designproject2.dxf 实体几何；比例 1 单位 = 50mm（用户确认，且二层外轮廓实测 8423-173=8250 印证）；洞口位置与净宽由墙线断开处实测",
+     "note": "外墙上的玻璃洞：落地、到顶"
+    }
+   ]
+  },
+  {
+   "name": "W-南外墙",
+   "from": [
+    50.0,
+    50.0
+   ],
+   "to": [
+    8200.0,
+    50.0
+   ],
+   "thickness": 100.0,
+   "height": 2700.0,
+   "source": "dim",
+   "confidence": "high",
+   "basis": "坐标来自 DXF 实体几何（组码 10/11/20/21），单位为mm；外轮廓由配置给出，墙厚/墙高由配置给出",
+   "openings": [
+    {
+     "type": "window",
+     "u": 3150.0,
+     "width": 2250.0,
+     "height": 2700.0,
+     "sill": 0.0,
+     "label": "南-玻璃",
+     "source": "dim",
+     "confidence": "high",
+     "basis": "坐标来自 designproject2.dxf 实体几何；比例 1 单位 = 50mm（用户确认，且二层外轮廓实测 8423-173=8250 印证）；洞口位置与净宽由墙线断开处实测",
+     "note": "外墙上的玻璃洞：落地、到顶"
+    }
+   ]
+  },
+  {
+   "name": "W-北外墙",
+   "from": [
+    50.0,
+    8200.0
+   ],
+   "to": [
+    8200.0,
+    8200.0
+   ],
+   "thickness": 100.0,
+   "height": 2700.0,
+   "source": "dim",
+   "confidence": "high",
+   "basis": "坐标来自 DXF 实体几何（组码 10/11/20/21），单位为mm；外轮廓由配置给出，墙厚/墙高由配置给出",
+   "openings": [
+    {
+     "type": "window",
+     "u": 2950.0,
+     "width": 2139.0,
+     "height": 2700.0,
+     "sill": 0.0,
+     "label": "北-玻璃",
+     "source": "dim",
+     "confidence": "high",
+     "basis": "坐标来自 designproject2.dxf 实体几何；比例 1 单位 = 50mm（用户确认，且二层外轮廓实测 8423-173=8250 印证）；洞口位置与净宽由墙线断开处实测",
+     "note": "外墙上的玻璃洞：落地、到顶"
+    }
+   ]
+  },
+  {
+   "name": "W-中庭西壁",
+   "from": [
+    2200.0,
+    100.0
+   ],
+   "to": [
+    2200.0,
+    8150.0
+   ],
+   "thickness": 100.0,
+   "height": 2700.0,
+   "source": "dim",
+   "confidence": "high",
+   "basis": "坐标来自 DXF 实体几何（组码 10/11/20/21），单位为mm；外轮廓由配置给出，墙厚/墙高由配置给出",
+   "openings": [
+    {
+     "type": "door",
+     "u": 6400.0,
+     "width": 1250.0,
+     "height": 2100.0,
+     "sill": 0.0,
+     "label": "中庭西-门",
+     "source": "dim",
+     "confidence": "high",
+     "basis": "坐标来自 designproject2.dxf 实体几何；比例 1 单位 = 50mm（用户确认，且二层外轮廓实测 8423-173=8250 印证）；洞口位置与净宽由墙线断开处实测",
+     "note": "实测：x=2250 墙在 y 6500..7750 处断开 → 判为门洞"
+    }
+   ]
+  },
+  {
+   "name": "W-中庭东壁",
+   "from": [
+    6050.0,
+    100.0
+   ],
+   "to": [
+    6050.0,
+    8150.0
+   ],
+   "thickness": 100.0,
+   "height": 2700.0,
+   "source": "dim",
+   "confidence": "high",
+   "basis": "坐标来自 DXF 实体几何（组码 10/11/20/21），单位为mm；外轮廓由配置给出，墙厚/墙高由配置给出"
+  },
+  {
+   "name": "W-中庭南壁",
+   "from": [
+    100.0,
+    2200.0
+   ],
+   "to": [
+    8150.0,
+    2200.0
+   ],
+   "thickness": 100.0,
+   "height": 2700.0,
+   "source": "dim",
+   "confidence": "high",
+   "basis": "坐标来自 DXF 实体几何（组码 10/11/20/21），单位为mm；外轮廓由配置给出，墙厚/墙高由配置给出"
+  },
+  {
+   "name": "W-中庭北壁",
+   "from": [
+    100.0,
+    6050.0
+   ],
+   "to": [
+    8150.0,
+    6050.0
+   ],
+   "thickness": 100.0,
+   "height": 2700.0,
+   "source": "dim",
+   "confidence": "high",
+   "basis": "坐标来自 DXF 实体几何（组码 10/11/20/21），单位为mm；外轮廓由配置给出，墙厚/墙高由配置给出"
+  }
+ ]
+}

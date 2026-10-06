@@ -1,0 +1,148 @@
+{
+  "meta": {
+    "name": "全链路测试",
+    "units": "mm",
+    "source": "test_plan.png",
+    "unit_original": "mm",
+    "scale_basis": "1px = 13.2304mm，依据：6000.0mm / 453.5px（用户给定基准）",
+    "calibration_source": "dim",
+    "assumptions": [
+      "墙厚由用户提供，未从图上测量（量图误差 5~10%，不可用）",
+      "房间轮廓由墙线围合推断，真图上有隔墙时需人工核对",
+      "洞口类型（门/窗）依据线下沿是否存在判定，可能有误"
+    ]
+  },
+  "floors": [
+    {
+      "name": "F1-楼板",
+      "z": 0,
+      "thickness": 100,
+      "polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          6000,
+          0
+        ],
+        [
+          6000,
+          4796
+        ],
+        [
+          0,
+          4796
+        ]
+      ],
+      "source": "derived",
+      "basis": "由最外两条墙线中心距推算"
+    }
+  ],
+  "walls": [
+    {
+      "name": "W-南",
+      "from": [
+        0,
+        0
+      ],
+      "to": [
+        6000,
+        0
+      ],
+      "thickness": 240.0,
+      "height": 2800,
+      "source": "derived",
+      "basis": "墙线位置由探针测得，墙厚由用户给定",
+      "openings": [
+        {
+          "type": "door",
+          "u": 906,
+          "width": 900,
+          "height": 2100,
+          "sill": 0,
+          "label": "W-南-洞1",
+          "source": "derived",
+          "basis": "由墙上实心段之间的空隙测得；类型默认按门推定",
+          "confidence": "low",
+          "note": "洞口类型（门/窗）需要用户确认；窗的门槛高度也需确认"
+        },
+        {
+          "type": "door",
+          "u": 2600,
+          "width": 1495,
+          "height": 2100,
+          "sill": 0,
+          "label": "W-南-洞2",
+          "source": "derived",
+          "basis": "由墙上实心段之间的空隙测得；类型默认按门推定",
+          "confidence": "low",
+          "note": "洞口类型（门/窗）需要用户确认；窗的门槛高度也需确认"
+        }
+      ]
+    },
+    {
+      "name": "W-北",
+      "from": [
+        0,
+        4796
+      ],
+      "to": [
+        6000,
+        4796
+      ],
+      "thickness": 240.0,
+      "height": 2800,
+      "source": "derived",
+      "basis": "墙线位置由探针测得，墙厚由用户给定",
+      "openings": []
+    },
+    {
+      "name": "W-西",
+      "from": [
+        0,
+        0
+      ],
+      "to": [
+        0,
+        4796
+      ],
+      "thickness": 240.0,
+      "height": 2800,
+      "source": "derived",
+      "basis": "墙线位置由探针测得",
+      "openings": [],
+      "_note": "竖直墙上的洞口识别尚未实现（需要转置扫描），请人工核对"
+    },
+    {
+      "name": "W-东",
+      "from": [
+        6000,
+        0
+      ],
+      "to": [
+        6000,
+        4796
+      ],
+      "thickness": 240.0,
+      "height": 2800,
+      "source": "derived",
+      "basis": "墙线位置由探针测得",
+      "openings": [],
+      "_note": "竖直墙上的洞口识别尚未实现（需要转置扫描），请人工核对"
+    }
+  ],
+  "rooms": [],
+  "_extraction": {
+    "mm_per_px": 13.23043,
+    "wall_v_px": [
+      249.5,
+      521.5,
+      703.0
+    ],
+    "wall_h_px": [
+      249.0,
+      611.5
+    ]
+  }
+}

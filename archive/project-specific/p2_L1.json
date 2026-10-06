@@ -1,0 +1,237 @@
+{
+ "_comment": [
+  "designproject2 的**一层** —— 全部数值来自 DXF 实测，比例 1 单位 = 50mm（用户确认）。",
+  "用户给的事实逐条落到字段里：",
+  "  · 中间大方框：四壁是墙、顶上玻璃、**没有地板** → 内墙 + glass_roof + floor.holes",
+  "  · 外墙上的绿色 = 玻璃洞（落地）        → type=window, sill=0, height=墙高",
+  "  · 房间内凿开的 = 门                    → type=door",
+  "  · 层高 2700                            → wall_height",
+  "  · 地板厚 100，**不是家具**             → floor_thickness",
+  "  · 右下角 1/4 圆 = 旋转楼梯"
+ ],
+ "units": "mm",
+ "plan_name": "designproject2 一层",
+ "envelope": {
+  "x0": 0,
+  "y0": 0,
+  "x1": 8250,
+  "y1": 8250
+ },
+ "wall_thickness": 100,
+ "inner_thickness": 100,
+ "wall_height": 2700,
+ "door_height": 2100,
+ "floor_thickness": 100,
+ "_note_openings": "洞口用 abs 给绝对坐标（沿墙方向的建筑坐标），避免 u 随墙端漂移。",
+ "walls": [
+  {
+   "name": "W-西外墙",
+   "axis": "v",
+   "at": 50,
+   "thickness": 100,
+   "on_envelope": true,
+   "openings": [
+    {
+     "type": "window",
+     "abs": 2250,
+     "width": 3750,
+     "height": 2700,
+     "sill": 0,
+     "label": "西-玻璃",
+     "note": "外墙上的玻璃洞：落地、到顶（按你说的『墙上面开孔的绿色也是玻璃』）",
+     "source": "dim",
+     "confidence": "high",
+     "basis": "坐标来自 designproject2.dxf 实体几何；比例 1 单位 = 50mm（用户确认，且二层外轮廓实测 8423-173=8250 印证）；洞口位置与净宽由墙线断开处实测"
+    }
+   ],
+   "height": 2700,
+   "source": "dim",
+   "confidence": "high",
+   "basis": "坐标来自 designproject2.dxf 实体几何；比例 1 单位 = 50mm（用户确认，且二层外轮廓实测 8423-173=8250 印证）"
+  },
+  {
+   "name": "W-东外墙",
+   "axis": "v",
+   "at": 8200,
+   "thickness": 100,
+   "on_envelope": true,
+   "openings": [
+    {
+     "type": "window",
+     "abs": 4250,
+     "width": 1750,
+     "height": 2700,
+     "sill": 0,
+     "label": "东-玻璃",
+     "note": "外墙上的玻璃洞：落地、到顶",
+     "source": "dim",
+     "confidence": "high",
+     "basis": "坐标来自 designproject2.dxf 实体几何；比例 1 单位 = 50mm（用户确认，且二层外轮廓实测 8423-173=8250 印证）；洞口位置与净宽由墙线断开处实测"
+    }
+   ],
+   "height": 2700,
+   "source": "dim",
+   "confidence": "high",
+   "basis": "坐标来自 designproject2.dxf 实体几何；比例 1 单位 = 50mm（用户确认，且二层外轮廓实测 8423-173=8250 印证）"
+  },
+  {
+   "name": "W-南外墙",
+   "axis": "h",
+   "at": 50,
+   "thickness": 100,
+   "on_envelope": true,
+   "openings": [
+    {
+     "type": "window",
+     "abs": 3200,
+     "width": 2250,
+     "height": 2700,
+     "sill": 0,
+     "label": "南-玻璃",
+     "note": "外墙上的玻璃洞：落地、到顶",
+     "source": "dim",
+     "confidence": "high",
+     "basis": "坐标来自 designproject2.dxf 实体几何；比例 1 单位 = 50mm（用户确认，且二层外轮廓实测 8423-173=8250 印证）；洞口位置与净宽由墙线断开处实测"
+    }
+   ],
+   "height": 2700,
+   "source": "dim",
+   "confidence": "high",
+   "basis": "坐标来自 designproject2.dxf 实体几何；比例 1 单位 = 50mm（用户确认，且二层外轮廓实测 8423-173=8250 印证）"
+  },
+  {
+   "name": "W-北外墙",
+   "axis": "h",
+   "at": 8200,
+   "thickness": 100,
+   "on_envelope": true,
+   "openings": [
+    {
+     "type": "window",
+     "abs": 3000,
+     "width": 2139,
+     "height": 2700,
+     "sill": 0,
+     "label": "北-玻璃",
+     "note": "外墙上的玻璃洞：落地、到顶",
+     "source": "dim",
+     "confidence": "high",
+     "basis": "坐标来自 designproject2.dxf 实体几何；比例 1 单位 = 50mm（用户确认，且二层外轮廓实测 8423-173=8250 印证）；洞口位置与净宽由墙线断开处实测"
+    }
+   ],
+   "height": 2700,
+   "source": "dim",
+   "confidence": "high",
+   "basis": "坐标来自 designproject2.dxf 实体几何；比例 1 单位 = 50mm（用户确认，且二层外轮廓实测 8423-173=8250 印证）"
+  },
+  {
+   "name": "W-中庭西壁",
+   "axis": "v",
+   "at": 2200,
+   "thickness": 100,
+   "inner": true,
+   "span": [
+    100,
+    8150
+   ],
+   "openings": [
+    {
+     "type": "door",
+     "abs": 6500,
+     "width": 1250,
+     "height": 2100,
+     "label": "中庭西-门",
+     "note": "实测：x=2250 墙在 y 6500..7750 处断开 → 判为门洞",
+     "source": "dim",
+     "confidence": "high",
+     "basis": "坐标来自 designproject2.dxf 实体几何；比例 1 单位 = 50mm（用户确认，且二层外轮廓实测 8423-173=8250 印证）；洞口位置与净宽由墙线断开处实测"
+    }
+   ],
+   "height": 2700,
+   "source": "dim",
+   "confidence": "high",
+   "basis": "坐标来自 designproject2.dxf 实体几何；比例 1 单位 = 50mm（用户确认，且二层外轮廓实测 8423-173=8250 印证）"
+  },
+  {
+   "name": "W-中庭东壁",
+   "axis": "v",
+   "at": 6050,
+   "thickness": 100,
+   "inner": true,
+   "span": [
+    100,
+    8150
+   ],
+   "height": 2700,
+   "source": "dim",
+   "confidence": "high",
+   "basis": "坐标来自 designproject2.dxf 实体几何；比例 1 单位 = 50mm（用户确认，且二层外轮廓实测 8423-173=8250 印证）"
+  },
+  {
+   "name": "W-中庭南壁",
+   "axis": "h",
+   "at": 2200,
+   "thickness": 100,
+   "inner": true,
+   "span": [
+    100,
+    8150
+   ],
+   "height": 2700,
+   "source": "dim",
+   "confidence": "high",
+   "basis": "坐标来自 designproject2.dxf 实体几何；比例 1 单位 = 50mm（用户确认，且二层外轮廓实测 8423-173=8250 印证）"
+  },
+  {
+   "name": "W-中庭北壁",
+   "axis": "h",
+   "at": 6050,
+   "thickness": 100,
+   "inner": true,
+   "span": [
+    100,
+    8150
+   ],
+   "height": 2700,
+   "source": "dim",
+   "confidence": "high",
+   "basis": "坐标来自 designproject2.dxf 实体几何；比例 1 单位 = 50mm（用户确认，且二层外轮廓实测 8423-173=8250 印证）"
+  }
+ ],
+ "floors": [
+  {
+   "name": "F1-地板",
+   "z": 0,
+   "thickness": 100,
+   "polygon": [
+    [
+     0,
+     0
+    ],
+    [
+     8250,
+     0
+    ],
+    [
+     8250,
+     8250
+    ],
+    [
+     0,
+     8250
+    ]
+   ],
+   "holes": [
+    {
+     "x0": 2250,
+     "y0": 2250,
+     "x1": 6100,
+     "y1": 6100
+    }
+   ],
+   "source": "dim",
+   "confidence": "high",
+   "basis": "外轮廓 8250×8250 由 DXF 实测（二层 8423-173=8250 印证）；中庭洞按你说的这块没有地板"
+  }
+ ]
+}

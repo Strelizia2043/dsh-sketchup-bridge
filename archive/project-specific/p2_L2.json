@@ -1,0 +1,70 @@
+{
+  "_comment": [
+    "designproject2 **二层** —— 坐标来自 DXF 右图实测，比例 1 单位 = 50mm。",
+    "用户说明（原话）：",
+    "  ·「二层中间那一块绿色的，就是一层的玻璃屋顶」",
+    "    → 二层中庭处是**空的**，直接看到一层的玻璃顶（模型里已建在 2700..2800）",
+    "  ·「旋转楼梯上来的地方，就是 2 楼连接旋转楼梯的地方有一个小房间」",
+    "    → 右下角小房间：x 5867..8117，y 0..2150",
+    "  · 屋顶：平屋顶（周边平屋面板 + 中庭玻璃顶）",
+    "  · 层高 2700；地板厚 100",
+    "本层楼板在 2700..2800（坐在一层墙顶），墙在 2800..5500。",
+    "二层图纸原点比一层东移 217mm（实测），已换算到同一坐标系。"
+  ],
+
+  "units": "mm",
+  "plan_name": "designproject2 二层",
+  "envelope": { "x0": 0, "y0": 0, "x1": 8250, "y1": 8250 },
+
+  "wall_thickness": 100,
+  "inner_thickness": 100,
+  "wall_height": 2700,
+  "door_height": 2100,
+  "floor_thickness": 100,
+
+  "walls": [
+    {
+      "name": "L2-中庭西壁", "axis": "v", "at": 2250, "thickness": 100,
+      "inner": true, "span": [2150, 6100]
+    },
+    {
+      "name": "L2-中庭东壁", "axis": "v", "at": 6017, "thickness": 100,
+      "inner": true, "span": [2150, 6100]
+    },
+    {
+      "name": "L2-中庭南壁", "axis": "h", "at": 2250, "thickness": 100,
+      "inner": true, "span": [2150, 6050]
+    },
+    {
+      "name": "L2-中庭北壁", "axis": "h", "at": 6050, "thickness": 100,
+      "inner": true, "span": [2150, 6050]
+    },
+
+    {
+      "name": "L2-小房间西墙", "axis": "v", "at": 5967, "thickness": 100,
+      "inner": true, "span": [0, 2150],
+      "openings": [
+        { "type": "door", "abs": 200, "width": 1850, "height": 2100,
+          "label": "小房间-入口",
+          "note": "实测：该墙在 y 200..2050 处断开，宽 1850 → 判为入口洞口" }
+      ]
+    },
+    {
+      "name": "L2-小房间东墙", "axis": "v", "at": 8067, "thickness": 100,
+      "inner": true, "span": [0, 2150]
+    },
+    {
+      "name": "L2-小房间南墙", "axis": "h", "at": 50, "thickness": 100,
+      "inner": true, "span": [5967, 8117]
+    },
+    {
+      "name": "L2-小房间北墙", "axis": "h", "at": 2200, "thickness": 100,
+      "inner": true, "span": [5967, 8117]
+    },
+
+    {
+      "name": "L2-东侧长墙", "axis": "v", "at": 8167, "thickness": 100,
+      "inner": true, "span": [0, 8250]
+    }
+  ]
+}

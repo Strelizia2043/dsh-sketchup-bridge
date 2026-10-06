@@ -1,0 +1,80 @@
+{
+  "_comment": [
+    "店面图纸的语义与尺寸配置 —— 全部数值来自 Drawing1.dxf 的实测坐标。",
+    "为什么单独成文件：第一版把这些数字写死在代码里，换一张图就全废。",
+    "颜色语义来自用户原话：红=门、绿=一整面落地窗、白=墙、黄=标注，单位 mm。",
+    "本图墙厚 50（外墙）/ 100（内墙）—— 用户明说这是测试图，不考虑合理性。"
+  ],
+
+  "units": "mm",
+  "plan_name": "店面平面（读自 Drawing1.dxf）",
+  "envelope": { "x0": 0, "y0": 0, "x1": 5000, "y1": 5000 },
+
+  "wall_thickness": 50,
+  "inner_thickness": 100,
+  "wall_height": 3000,
+  "door_height": 2400,
+  "floor_thickness": 50,
+
+  "_axes": "axis=h 水平墙（at 是 y）；axis=v 竖直墙（at 是 x）。span 是沿墙方向的面线起止。",
+
+  "walls": [
+    {
+      "name": "W-西外墙", "axis": "v", "at": 25, "thickness": 50,
+      "on_envelope": true,
+      "openings": [
+        { "type": "door", "abs": 3050.00, "width": 1481.53, "height": 2400,
+          "sill": 0, "label": "西-门",
+          "note": "洞口位置与净宽由 DXF 实体精确坐标算出（绝对 Y 3050.00..4531.53）；门高 2400 图上没标，取常规值" }
+      ]
+    },
+    {
+      "name": "W-东外墙", "axis": "v", "at": 4975, "thickness": 50,
+      "on_envelope": true,
+      "openings": [
+        { "type": "window", "abs": 1704.83, "width": 2554.82, "height": 3000,
+          "sill": 0, "label": "东-落地窗",
+          "basis": "洞口位置与净宽由 DXF 实体精确坐标算出（绝对 Y 1704.83..4259.65）；按「一整面落地窗」处理为窗台 0、到顶",
+          "note": "落地窗：窗台高 0、高度到顶。墙高 3000 为常规取值，图上无标注" }
+      ]
+    },
+    {
+      "name": "W-北外墙", "axis": "h", "at": 4975, "thickness": 50,
+      "on_envelope": true
+    },
+    {
+      "name": "W-南外墙", "axis": "h", "at": 25, "thickness": 50,
+      "on_envelope": true,
+      "openings": [
+        { "type": "door", "abs": 1009.24, "width": 1481.53, "height": 2400,
+          "sill": 0, "label": "南-门",
+          "note": "位置按你的选择「靠左区中间」：绝对 X 1009.24..2490.77（左区内皮 50..3450）；门高 2400 为常规值" }
+      ]
+    },
+
+    {
+      "name": "W-纵隔墙", "axis": "v", "at": 3500, "thickness": 100,
+      "inner": true, "span": [50, 4950]
+    },
+    {
+      "name": "W-横隔墙-西", "axis": "h", "at": 1100, "thickness": 100,
+      "inner": true, "span": [50, 3450]
+    },
+    {
+      "name": "W-横隔墙-东", "axis": "h", "at": 1100, "thickness": 100,
+      "inner": true, "span": [3550, 4039.31]
+    },
+    {
+      "name": "W-东南-北墙", "axis": "h", "at": 1075, "thickness": 50,
+      "inner": true, "span": [4794.79, 4950]
+    },
+    {
+      "name": "W-东南-西墙", "axis": "v", "at": 3575, "thickness": 50,
+      "inner": true, "span": [50, 1050]
+    },
+    {
+      "name": "W-东南-东墙", "axis": "v", "at": 4925, "thickness": 50,
+      "inner": true, "span": [50, 1050]
+    }
+  ]
+}

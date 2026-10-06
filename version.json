@@ -1,0 +1,167 @@
+{
+  "_readme": [
+    "本项目**唯一的版本权威**。代码、文档、测试都从这里取版本，不许各自写死。",
+    "",
+    "为什么要有这个文件：在建立它之前，`dsh_bridge.rb` 里写死着 VERSION='1.0.0'",
+    "而从建立至今它至少改过十几次（光 reload 逻辑就有 v1~v5）；",
+    "文档里同时存在「最后更新 Round 9」和「Round 34」两种说法。",
+    "**没有单一权威 = 问『现在第几版』时给不出可信答案。**",
+    "",
+    "版本号约定（语义化）：",
+    "  project.version        整个『DSH 操作 SketchUp』能力的版本",
+    "  components[*].version  单个组件的版本",
+    "  规则：加了新能力 → 次版本 +1；只修 bug → 修订号 +1；架构变了 → 主版本 +1"
+  ],
+  "project": {
+    "name": "DSH ↔ SketchUp",
+    "version": "0.6.0",
+    "version_note": [
+      "0.1.x  图片路线：从照片/截图读平面图 → 建模（33 轮）",
+      "       · 实测能力：建筑尺寸 ±48mm、洞口位置 ±27mm",
+      "0.2.0  CAD 直读路线打通（第 34 轮）：DXF → 精确模型，精度到 0",
+      "0.3.0  多楼层与挑空（第 36 轮）：楼板挖洞、分标高、顶板可关",
+      "0.4.0  能力固化与交接（第 37 轮）：",
+      "       · **新增构件库 dsh_parts.rb**（墙开门窗 / 楼板挖洞 / 螺旋楼梯 / 材质）",
+      "       · **新增 DSH-接手指南.md** —— 重启 DSH 后从它接上上下文",
+      "       · **新增 verify_parts.py**（9 项，防「门变窗 / move_to 静默失败 / 楼梯薄片」）",
+      "       · build_from_json.py 加「文档非空时拒绝清空」闸门（要 --discard）",
+      "       · 修正三处内墙做长（4400/1900/1950mm），楼梯两侧恢复敞开",
+      "       · 仍未做：家具缺件待用户指认、地板纹理待用户给图",
+      "0.4.1  接手指南改为**强制**读（第 37 轮）：ping 返回 briefing.must_read；**未读指南前 reload 被拒**（错误码 briefing_required）；标记放进程级全局变量以跨热重载存活；指纹用内容哈希（插件目录与工作区两份 mtime 不同）。指南本身也进了插件目录，跟着插件走。",
+      "0.5.0  **可装机**（第 38 轮）：① 目录重组：tools/{cad,img,build} + tests/ + archive/（16 个废弃脚本归档）；② 路径不写死：桥按四步定位工作区（dsh_workspace.json → 环境变量 → 向上找 sk_client.py → 兜底），实测删掉配置文件也能找对；③ **新增 dsh_bridge/install.py 一键安装**（找 Plugins 目录 → 复制 → 按实际位置写定位文件 → 自检）；④ 新增 dsh_paths.py 工具定位器；⑤ 修复 45 处迁移引起的导入/路径问题（含 3 项假通过的测试）。",
+      "0.6.0  **开源准备**（第 39 轮）：① token 不再写死 —— 首次运行随机生成，存 dsh_workspace.json（已 gitignore）；② 全部硬编码路径清除（含 一个真 bug：save/export 的工作区守卫写死了目录名，换机器后必失败）；③ 真实图纸与产物全部排除（cad/ real/ shots/ 等）；④ 针对特定项目的 23 个脚本归档；⑤ MIT LICENSE + QUICKSTART.md；⑥ 测试对缺少示例图纸的用例会跳过并说明，而不是报失败。"
+    ],
+    "since": "2026-10",
+    "vcs": "无 git 仓库（历史散落在文档与代码注释里；本文件从此刻起是权威）"
+  },
+  "components": [
+    {
+      "name": "dsh_bridge.rb",
+      "version": "1.6.0",
+      "role": "桥：socket 服务 + 命令分发",
+      "note": "563 行；socket 服务 + 命令分发 + 热重载（Ripper 预检）。**工作区路径与 token 均改为动态定位**（四步：dsh_workspace.json → DSH_WORKSPACE → 向上找 sk_client.py → 兜底），token 首次运行随机生成"
+    },
+    {
+      "name": "dsh_handlers.rb",
+      "version": "1.6.0",
+      "role": "命令实现层（热重载）",
+      "note": "18 条命令；shot 支持 render_mode；undo/redo 用快照差分判定；**新增 briefing 命令与 reload 前的接手指南硬门**；**工作区路径改为四步动态定位，不再写死**"
+    },
+    {
+      "name": "dsh_loader.rb",
+      "version": "1.1.0",
+      "role": "界面层（非阻塞 HtmlDialog）",
+      "note": "曾因 UI.messagebox 冻住整个桥，改为非模态对话框"
+    },
+    {
+      "name": "build_from_plan.rb",
+      "version": "1.8.0",
+      "role": "几何生成器",
+      "note": "墙/洞口/门窗扇框/楼板（**含挖洞**）/房间/天花/屋面/女儿墙/楼梯/家具/材质；已修 3 个「内外墙不等厚才暴露」的 bug；新增 floors[].holes 与 envelope_ceiling.skip；已改为加载 dsh_parts.rb 构件库"
+    },
+    {
+      "name": "extract_plan.py",
+      "version": "1.3.0",
+      "role": "图片 → plan JSON",
+      "note": "投影方差去斜、Otsu 阈值、相对厚度判墙线、墙垛合并"
+    },
+    {
+      "name": "plan_probe.py",
+      "version": "1.4.0",
+      "role": "墙线探测",
+      "note": "跨度定位连错两版（整行墨迹占比 → 短游程+连续带）；判据为『最长游程 或 跨度内墨迹占比』"
+    },
+    {
+      "name": "dxf_import.py",
+      "version": "1.0.0",
+      "role": "DXF 探查 + 按颜色语义分类",
+      "note": "ACI 0/256 是 BYBLOCK/BYLAYER 哨兵值，必须回落到图层颜色"
+    },
+    {
+      "name": "cad_to_plan.py",
+      "version": "1.0.0",
+      "role": "配置驱动生成 plan JSON",
+      "note": "洞口用绝对坐标 abs，避免『u 随墙端漂移』"
+    },
+    {
+      "name": "build_from_json.py",
+      "version": "1.2.0",
+      "role": "建模驱动",
+      "note": "**默认只审查不建模**，--confirm 才动手（按工作政策「先确认后建模」）"
+    },
+    {
+      "name": "dsh_parts.rb",
+      "version": "1.0.0",
+      "role": "通用构件库（可热重载）",
+      "note": "wall（门只留洞/窗带玻璃框）/ slab_with_holes（拆无重叠矩形）/ spiral_stair（扇形踏面）/ mat / paint。内置三条约定：洞口用绝对坐标（u 会漂）、不用布尔运算、平铺命名（move_to 静默失败过）"
+    },
+    {
+      "name": "install.py",
+      "version": "1.0.0",
+      "role": "一键安装（装机入口）",
+      "note": "找 Plugins 目录 / 复制 4 个 rb + 指南 + 定位文件 / 按实际位置重写定位 / 自检。支持 --list --dry-run --uninstall"
+    },
+    {
+      "name": "dsh_paths.py",
+      "version": "1.0.0",
+      "role": "工具定位器",
+      "note": "tool()/tool_rel()/ROOT：重组目录后脚本在 tools/* 下，按名字查找并返回路径。避免裸文件名找不到脚本却不报错"
+    }
+  ],
+  "tests": [
+    {
+      "name": "test_bridge_protocol.py",
+      "items": 21,
+      "covers": "桥协议"
+    },
+    {
+      "name": "verify_restart.py",
+      "items": 14,
+      "covers": "重启后可用性（全新进程）"
+    },
+    {
+      "name": "verify_cad.py",
+      "items": 16,
+      "covers": "CAD 直读 + 3 个真实图纸 bug 的防复发"
+    },
+    {
+      "name": "verify_flow.py",
+      "items": 70,
+      "covers": "图片路线完整工作流"
+    },
+    {
+      "name": "verify_pipeline.py",
+      "items": 11,
+      "covers": "全链路集成精度"
+    },
+    {
+      "name": "test_degradation.py",
+      "items": 18,
+      "covers": "抗退化（歪斜/噪声/模糊/分辨率…）"
+    },
+    {
+      "name": "test_sweep.py",
+      "items": 16,
+      "covers": "参数扫描（比例/单位/长宽比/墙厚/洞口）"
+    },
+    {
+      "name": "check_geometry.py",
+      "items": 0,
+      "covers": "逐构件世界坐标核对（数量随模型）"
+    },
+    {
+      "name": "diag_joints.py",
+      "items": 0,
+      "covers": "接口检查（缝 + 重叠分类）"
+    },
+    {
+      "name": "verify_parts.py",
+      "items": 9,
+      "covers": "构件库（防「门变窗 / move_to 静默失败 / 螺旋楼梯薄片」）"
+    }
+  ],
+  "rounds": {
+    "current": 37,
+    "note": "『轮』是本会话的自动迭代计数，与版本号正交。文档里出现过的 Round 7/9/34 都是当时的快照，不要当成版本号。"
+  }
+}
