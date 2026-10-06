@@ -1,0 +1,37 @@
+# 统一行尾 —— 这不是洁癖，是踩过的坑。
+#
+# 背景：Windows 上 git 默认 core.autocrlf=true，检出时把 LF 转成 CRLF。
+# 而插件目录里的 Ruby 文件是 LF，测试里有一条按字节的断言
+# （"文件以 end 结尾"），CRLF 会让它报"文件不完整"——
+# **是检查太脆，但那也说明行尾不一致会真的制造麻烦**。
+#
+# 所以：仓库里**一律存 LF**，检出时也不转换。
+# 这样 Windows / macOS / Linux 三个平台拿到的字节完全一样。
+* text=auto eol=lf
+
+# 二进制文件，别碰
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.skp binary
+*.skb binary
+*.dwg binary
+*.dxf binary
+*.zip binary
+*.exe binary
+
+# 这些必须是 LF：Ruby 与 Python 解析器对行尾敏感度低，
+# 但插件目录与工作区要做 SHA256 一致性比对 —— 行尾不同哈希就不同。
+*.rb  text eol=lf
+*.py  text eol=lf
+*.json text eol=lf
+*.md  text eol=lf
+*.txt text eol=lf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# 让 git 在 diff 里正确识别这些语言
+*.rb   diff=ruby
+*.py   diff=python
+*.md   diff=markdown
