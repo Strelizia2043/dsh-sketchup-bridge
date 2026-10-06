@@ -22,6 +22,13 @@ import tempfile
 REPO = "https://github.com/Strelizia2043/dsh-sketchup-bridge.git"
 PY = sys.executable
 
+# 输出多时 PowerShell 会缓冲/吞掉尾部（实测用户那边"什么都没显示"）。
+# 用行缓冲 + 结尾显式 flush 解决。
+try:
+    sys.stdout.reconfigure(line_buffering=True)
+except Exception:
+    pass
+
 
 def run(cmd, cwd=None, timeout=600):
     r = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True,
@@ -159,6 +166,17 @@ def main() -> int:
         print("  ❌ 有问题 —— 上面标 [X] 的项需要修")
     print(f"  （临时目录保留着，想手工看：{tmp}）")
     print("=" * 66)
+    if ok:
+        print()
+        print("   " + "=" * 60)
+        print("   >>>  成功：别人克隆下来可以正常安装和使用  <<<")
+        print("   " + "=" * 60)
+    else:
+        print()
+        print("   " + "=" * 60)
+        print("   >>>  失败：上面标 [X] 的项需要修  <<<")
+        print("   " + "=" * 60)
+    sys.stdout.flush()
     return 0 if ok else 1
 
 
