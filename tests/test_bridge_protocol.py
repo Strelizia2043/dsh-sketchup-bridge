@@ -78,9 +78,13 @@ from sk_client import SC, BridgeError  # noqa: E402
 # （首次运行由桥随机生成）—— 于是假桥和客户端用不同的串，**整组测试报 auth 失败**。
 # 症状看着像"token 机制坏了"，其实是测试没跟上机制变化。
 #
-# 现在：直接复用客户端解析到的那个 token；客户端拿不到时（比如还没跑过桥）
-# 用一个固定的测试串，总之**两边一定是同一个值**。
-TOKEN = getattr(__import__("sk_client"), "TOKEN", "") or "dsh-test-token-0000000000"
+# 现在直接复用客户端解析到的值。这一条**必须是同一个来源**：
+# 第二版我在这里另写了一个 "dsh-test-token-0000000000" 作兜底，
+# 而客户端的兜底是另一个串 —— 结果**全新克隆**（没有配置文件）跑测试时
+# 又是 2 失败 8 错误。所以兜底值统一由 sk_client.PLACEHOLDER_TOKEN 提供。
+import sk_client  # noqa: E402
+
+TOKEN = sk_client.TOKEN
 
 
 class FakeBridge(threading.Thread):

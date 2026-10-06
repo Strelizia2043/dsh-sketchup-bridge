@@ -38,6 +38,20 @@ import time
 HOST = "127.0.0.1"
 PORT = 9877
 
+# 还没装过桥时用的占位 token（**不是**安全凭据）。
+#
+# 为什么需要它：全新克隆下来 `dsh_workspace.json` 还不存在（那是 install.py
+# 或桥首次运行时才生成的）。此时：
+#   · 假桥（测试用）需要有个 token 才跑得起来
+#   · 客户端也需要拿到**同一个值**，否则整组协议测试报 auth 失败
+#
+# 所以两边共用这个常量，而不是各写各的字符串
+# （实测：测试里写 "dsh-test-token-0000000000"、客户端返回 ""，
+#  结果全新克隆跑协议测试 2 失败 8 错误）。
+#
+# 装好之后这个值就没人用了 —— 真 token 由桥随机生成并写进配置文件。
+PLACEHOLDER_TOKEN = "dsh-not-installed-yet"
+
 
 def _project_dir() -> str:
     """工作区根目录（含本文件的那一层）。"""
@@ -47,21 +61,22 @@ def _project_dir() -> str:
 def _load_token() -> str:
     """从 dsh_workspace.json 读 token。
 
-    原来这里写死 `TOKEN = "dsh-su-2026"` —— **所有安装共用同一个**，
+    这里原来写死 `TOKEN = "dsh-su-2026"` —— **所有安装共用同一个**，
     而且上传到公开仓库等于把钥匙公开。现在桥在首次运行时随机生成，
     两边都从这个文件读，所以不需要手工同步。
 
-    找不到时给一个空串并让桥拒绝（会报 auth 错误），
-    **不要**退回旧的写死值 —— 那会让人以为连上了。
+    读不到（还没装）时退回 `PLACEHOLDER_TOKEN`：
+    · 对**真桥**它一定不对 → 报 auth 错误，这是对的（说明你还没装）
+    · 对**测试里的假桥**它能对上 → 让协议测试在未安装状态下也能跑
     """
     p = os.environ.get("DSH_WORKSPACE_CONFIG") or os.path.join(
         _project_dir(), "dsh_workspace.json")
     try:
         with open(p, encoding="utf-8") as fp:
             tok = (json.load(fp) or {}).get("token") or ""
-        return str(tok)
+        return str(tok) or PLACEHOLDER_TOKEN
     except Exception:
-        return ""
+        return PLACEHOLDER_TOKEN
 
 
 TOKEN = _load_token()
