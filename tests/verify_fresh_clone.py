@@ -180,5 +180,51 @@ def main() -> int:
     return 0 if ok else 1
 
 
+class _Tee:
+    """把输出同时写到终端和文件。
+
+    为什么需要：用户在自己的 PowerShell 里跑这个脚本**一点输出都没有**
+    （加 -u 也没用），而在 DSH 里跑正常。与其猜终端行为，
+    不如让脚本自己落一份报告 —— 文件不受终端影响。
+    """
+
+    def __init__(self, *streams):
+        self.streams = [s for s in streams if s is not None]
+
+    def write(self, data):
+        for s in self.streams:
+            try:
+                s.write(data)
+                s.flush()
+            except Exception:
+                pass
+        return len(data)
+
+    def flush(self):
+        for s in self.streams:
+            try:
+                s.flush()
+            except Exception:
+                pass
+
+
 if __name__ == "__main__":
-    raise SystemExit(main())
+    _report = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "..", "clone_check_report.txt")
+    _report = os.path.normpath(_report)
+    try:
+        _f = open(_report, "w", encoding="utf-8")
+    except Exception:
+        _f = None
+    _real = sys.stdout
+    sys.stdout = _Tee(_real, _f)
+    try:
+        _rc = main()
+    finally:
+        sys.stdout = _real
+        if _f:
+            _f.close()
+        # 报告路径直接写到 stderr —— 它不会被 stdout 的缓冲影响
+        sys.stderr.write("\n报告已写到: %s\n" % _report)
+        sys.stderr.flush()
+    raise SystemExit(_rc)

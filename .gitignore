@@ -61,3 +61,7 @@ desktop.ini
 # ---- 模拟全新克隆的临时目录（verify_fresh_clone.py 生成）----
 /_clone_test/
 
+
+# ---- 全新克隆验证的运行产物 ----
+/_clone_test/
+/clone_check_report.txt
