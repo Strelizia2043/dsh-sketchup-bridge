@@ -57,28 +57,60 @@ def find_plugin_dirs():
     return out
 
 
-def workspace_json(dry=False):
-    """按**实际位置**写 dsh_workspace.json。"""
+def _existing(path):
+    """读一份已有的定位文件（保留它的 token 等字段）。"""
+    try:
+        with open(path, encoding='utf-8') as fp:
+            d = json.load(fp)
+        return d if isinstance(d, dict) else {}
+    except Exception:
+        return {}
+
+
+def workspace_json(target=None, dry=False):
+    """按**实际位置**写 dsh_workspace.json。
+
+    ⚠️ **必须保留已有的 token**。
+    第一版这里是"整份覆盖"，于是每次重装都把 token 冲掉 ——
+    而桥进程里的 token 是启动时读的，客户端读的是文件：
+    **两边立刻不一致，所有命令开始报 `[auth] token 不正确`**。
+    症状看着像"桥坏了"，其实是安装脚本把自己的钥匙弄丢了。
+    """
+    # 目标目录那份是"真源"（桥从这里读），先把它现有的内容读出来
+    dst = os.path.join(target, 'dsh_workspace.json') if target else \
+        os.path.join(HERE, 'dsh_workspace.json')
+    old = _existing(dst) or _existing(os.path.join(HERE, 'dsh_workspace.json')) \
+        or _existing(os.path.join(PROJECT, 'dsh_workspace.json'))
+
     data = {
         '_说明': [
-            'DSH <-> SketchUp 工作区定位文件（install.py 自动生成）。',
+            'DSH <-> SketchUp 工作区定位文件（install.py 生成，可手工改）。',
             '',
             '桥按四步定位：本文件的 home -> 环境变量 DSH_WORKSPACE ->',
             '从桥自身位置向上找 sk_client.py -> 兜底。',
             '',
             'home 的语义是"含 sk_client.py 的那一层"，也就是工作区根目录。',
             '换机器/换目录时重新跑 install.py 即可。',
+            '',
+            'token 是桥与客户端共用的鉴权串，**首次运行由桥随机生成**。',
+            '本文件已在 .gitignore 里，不会被提交。',
         ],
         'home': PROJECT.replace('\\', '/'),
         'project': os.path.basename(PROJECT),
         'shots': '',
-        'plugin_dir': '',   # 由 install.py 填入，便于测试找到插件目录
+        # 保住已有的 token；没有就留空，交给桥首次运行生成
+        'token': old.get('token') or '',
+        'plugin_dir': target or old.get('plugin_dir') or '',
     }
     text = json.dumps(data, ensure_ascii=False, indent=1)
-    for path in (os.path.join(HERE, 'dsh_workspace.json'),
-                 os.path.join(PROJECT, 'dsh_workspace.json')):
+    paths = [os.path.join(HERE, 'dsh_workspace.json'),
+             os.path.join(PROJECT, 'dsh_workspace.json')]
+    if target:
+        paths.insert(0, os.path.join(target, 'dsh_workspace.json'))
+    for path in paths:
         if dry:
-            print('      [dry-run] 会写 %s（home=%s）' % (path, data['home']))
+            print('      [dry-run] 会写 %s（home=%s，token=%s）'
+                  % (path, data['home'], '保留' if data['token'] else '待生成'))
             continue
         with open(path, 'w', encoding='utf-8') as fp:
             fp.write(text)
@@ -199,7 +231,7 @@ def main():
     # 3. 写定位文件（关键一步）
     print()
     print('== 3. 写工作区定位文件')
-    data = workspace_json(args.dry_run)
+    data = workspace_json(target, args.dry_run)
     if not args.dry_run:
         print('   [OK] home = %s' % data['home'])
 
