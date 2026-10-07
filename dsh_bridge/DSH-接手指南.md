@@ -217,10 +217,16 @@ r = P.extrude_profile(ents, 'WO-外墙', rects, z0, height)
 res = P.build_walls(ents, plan['walls'])
 # => [{ category:, z0:, z1:, group:, volume_m3:, want:, ok: }, ...]
 
-# 水平大板都有好记的别名（同一个函数）
-P.ceiling(ents, 'CE-天花板', rects, 2700, 100)
-P.roof_slab(ents, 'RF-屋顶', rects, 5500, 150)
-P.eave(ents, 'EV-房檐', rects, 5600, 80)
+# 水平大板（天花板 / 屋顶 / 房檐 / 楼板）—— 也按类别各成一组
+res = P.build_slabs(ents, [
+  { 'category' => 'ceiling', 'z' => 2700, 'thickness' => 100,
+    'polygon' => [[0,0],[8250,0],[8250,8250],[0,8250]],
+    'holes' => [[2250,2250,6100,6100]] },          # 中庭洞
+  { 'category' => 'roof', 'z' => 5500, 'thickness' => 150, 'rects' => [...] },
+  { 'category' => 'eave', 'z' => 5500, 'thickness' => 80, 'rects' => [...] }
+])
+# 输入形状三种都能吃：rects / polygon+holes / 直接给矩形列表
+# 单块的简写：P.ceiling(...) / P.roof_slab(...) / P.eave(...) / P.floor_slab(...)
 
 # union 融合
 r = P.union_solids(ents, 'WO-外墙', boxes)

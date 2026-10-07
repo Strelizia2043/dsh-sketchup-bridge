@@ -312,6 +312,48 @@ puts "HAS_UNION=#{Sketchup::Group.instance_methods.include?(:union)}"
               v.get("FUSED") == "false", "非 Pro 版上的预期行为")
     total += c6.report("F. union 融合（用户要求「会用 union」）")
 
+    # ── G. 水平大板分组（天花板 / 屋顶 / 房檐各一组）
+    # 用户："屋顶、房檐这些也要自己单独分一组，因为**这些也算大整体**"
+    c7 = Check()
+    r = ruby(SETUP + '''
+slabs = [
+  { 'category' => 'ceiling', 'z' => 2700, 'thickness' => 100,
+    'polygon' => [[0,0],[8250,0],[8250,8250],[0,8250]],
+    'holes' => [[2250,2250,6100,6100]] },
+  { 'category' => 'roof', 'z' => 5500, 'thickness' => 150,
+    'rects' => [[-600,-600,8850,2250],[-600,6100,8850,8850],
+                [-600,2250,2250,6100],[6100,2250,8850,6100]] },
+  { 'category' => 'eave', 'z' => 5500, 'thickness' => 80,
+    'rects' => [[-600,8250,8850,8850]] }
+]
+res = P.build_slabs(ents, slabs)
+puts "N=#{res.size}"
+puts "OK=#{res.count { |x| x[:ok] }}/#{res.size}"
+puts "CATS=#{res.map { |x| x[:category] }.inspect}"
+puts "NAMES=#{res.map { |x| x[:group] && x[:group].name }.compact.inspect}"
+puts "OUTER=#{res.map { |x| x[:outer_pts] }.inspect}"
+puts "FACES=#{res.map { |x| x[:faces] }.inspect}"
+puts "VOLS=#{res.map { |x| (x[:volume_m3] || -1).round(4) }.inspect}"
+''')
+    v = kv(r)
+    c7.ok("★ 天花板/屋顶/房檐各自成组",
+          v.get("N") == "3"
+          and "ceiling" in (v.get("CATS") or "")
+          and "roof" in (v.get("CATS") or "")
+          and "eave" in (v.get("CATS") or ""),
+          f"组数 {v.get('N')}，类别 {v.get('CATS')}")
+    c7.ok("★ 每组体积自检通过",
+          (v.get("OK") or "").split("/")[0] == (v.get("OK") or "").split("/")[-1],
+          f"通过 {v.get('OK')}")
+    # 轮廓 4 点 + 面数最小 = 外面没有分割线（同 A 组的判据）
+    c7.ok("★ 每块板外轮廓都是 4 点（共线点已清）",
+          v.get("OUTER") == "[4, 4, 4]", f"轮廓点数 {v.get('OUTER')}")
+    c7.ok("★ 天花板带中庭洞、面数 10（理论最小值）",
+          (v.get("FACES") or "").startswith("[10"), f"面数 {v.get('FACES')}")
+    c7.ok("★ 屋顶也带洞（中庭通到顶），体积 = 空心环 11.172",
+          "11.172" in (v.get("VOLS") or ""), f"体积 {v.get('VOLS')}")
+    total += c7.report("G. 水平大板分组（天花板/屋顶/房檐）")
+
     print(f"\n{'=' * 52}")
     print(f"  合计失败：{total}")
     return 1 if total else 0

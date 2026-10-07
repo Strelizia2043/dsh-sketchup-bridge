@@ -746,6 +746,84 @@ module DshParts
     out
   end
 
+  # ══════════════════════════════ 水平大板：分组入口（天花板/屋顶/房檐）
+  #
+  # 用户明确要求："天花板、房檐、屋顶这些也要自己单独分一组，
+  # 因为**这些也算大整体**"。
+  #
+  # 和墙一样：按类别 + 标高分组，每组一次轮廓推拉成型。
+  # 一个"板"的输入形状有三种，都要认：
+  #   · `rects`  → 直接给矩形列表（最省事，带洞就用 4 块围一圈）
+  #   · `polygon`+`holes` → 给轮廓和洞（楼板/天花最常见的表达）
+  #   · `polys`  → 多个多边形（屋顶可能有几段）
+  #
+  # slabs: [{ 'category' => 'ceiling'|'roof'|'eave'|'floor'|'mezzanine',
+  #            'z' | 'z0', 'thickness',
+  #            'rects' | ('polygon' + 'holes'),
+  #            'name'（可选，不给就按契约生成） }, ...]
+  #
+  # 返回 [{ category:, z0:, z1:, group:, volume_m3:, want:, ok: }, ...]
+  def build_slabs(ents, slabs, mat: nil)
+    out = []
+    Array(slabs).each do |s|
+      cat = (s['category'] || s['kind'] || 'ceiling').to_sym
+      unless CATEGORIES.any? { |c| c[:key] == cat }
+        out << { category: cat, error: "未知类别 #{cat}" }
+        next
+      end
+      z0 = (s['z0'] || s['z'] || 0).to_f
+      th = (s['thickness'] || 100).to_f
+      rects = slab_rects(s)
+      if rects.empty?
+        out << { category: cat, error: '没算出任何矩形（检查 rects / polygon+holes）' }
+        next
+      end
+      name = s['name'] || group_name(cat, z0, z0 + th)
+      r = extrude_profile(ents, name, rects, z0, th, mat: mat)
+      want = rect_area(rects) / 1e6 * th / 1000.0
+      out << r.merge(category: cat, z0: z0, z1: z0 + th, want: want,
+                     ok: r[:volume_m3] && (r[:volume_m3] - want).abs < 0.01)
+    end
+    out
+  end
+
+  # 把三种输入形状统一折算成矩形列表
+  #
+  # ⚠️ `polygon` + `holes` 的算法：**只支持轴对齐的矩形洞**，
+  # 按"洞的四条边线"把大矩形切成 4 条带 —— 多于一个洞时会不准。
+  # 需要多个洞时请直接给 `rects`（那是精确表达）。
+  # 之所以不在这里做通用的多边形布尔：那需要完整的并集算法，
+  # 而 extrude_profile 本身就能正确处理多个矩形，代价只是多写几行数据。
+  def slab_rects(s)
+    if s['rects'] && !Array(s['rects']).empty?
+      return Array(s['rects']).map { |r| r.map(&:to_f) }
+    end
+    poly = s['polygon']
+    return [] if poly.nil? || poly.length < 3
+    xs = poly.map { |p| p[0].to_f }
+    ys = poly.map { |p| p[1].to_f }
+    x0 = xs.min; x1 = xs.max; y0 = ys.min; y1 = ys.max
+    holes = Array(s['holes']).map { |h| h.map(&:to_f) }
+    return [[x0, y0, x1, y1]] if holes.empty?
+
+    # 用洞的边界线把大矩形切成网格，取不在任何洞内的格
+    hx = holes.flat_map { |h| [h[0], h[2]] }.uniq.sort
+    hy = holes.flat_map { |h| [h[1], h[3]] }.uniq.sort
+    gx = ([x0, x1] + hx).uniq.sort
+    gy = ([y0, y1] + hy).uniq.sort
+    out = []
+    gy.each_cons(2) do |ya, yb|
+      gx.each_cons(2) do |xa, xb|
+        next if xb - xa < 0.5 || yb - ya < 0.5
+        mx = (xa + xb) / 2.0
+        my = (ya + yb) / 2.0
+        next if holes.any? { |h| h[0] <= mx && mx <= h[2] && h[1] <= my && my <= h[3] }
+        out << [xa, ya, xb, yb]
+      end
+    end
+    out
+  end
+
   # ──────────────────────────────────────────────────────────── 材质
 
   # 取或建材质。**名字不存在时不抛异常**（踩过：直接抛 ArgumentError 让整个构建失败）
