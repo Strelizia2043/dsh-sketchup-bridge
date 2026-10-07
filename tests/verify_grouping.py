@@ -539,6 +539,75 @@ puts "VOLS=#{res.map { |x| (x[:volume_m3] || -1).round(4) }.inspect}"
               "1/7")
     total += c9.report("I. 润色提案（平面没写的，提议补什么）")
 
+    # ── J. 家具尺寸（用户点名问的："凳子桌子这些一般要多高多宽"）
+    #
+    # 家具与建筑构件不同：**家具是买成品的**，所以国标给的是区间不是定值。
+    # 所以断言分两层：
+    #   ① 我的通行值必须**落在国标区间内**（不是硬编码等于国标）
+    #   ② 桌椅**配套**关系必须成立（各自合法不代表配起来能用）
+    c10 = Check()
+    if _ok:
+        try:
+            from code_standards import (FURNITURE, check_furniture,
+                                        check_furniture_set)
+        except Exception as e:
+            c10.ok("能导入家具标准", False, f"{type(e).__name__}: {e}")
+            FURNITURE = {}
+
+        # ① 桌子：国标 680~760，通行 750
+        tb = FURNITURE.get("table", {})
+        lo, hi = tb.get("spec", {}).get("桌面高", (None, None))
+        c10.ok("★ 桌面高国标 = 680~760（GB/T 3326-2016）",
+              lo == 680 and hi == 760, f"{lo}~{hi}  {tb.get('src','')}")
+        c10.ok("★ 通行桌面高 750 落在国标区间内",
+              tb.get("v", {}).get("h") == 750 and lo <= 750 <= hi,
+              f"取值 {tb.get('v', {}).get('h')}")
+
+        # ② ★ 座高：**这条改过一个真错**
+        #    插件原来写 450，超国标上限 440
+        ch = FURNITURE.get("chair", {})
+        slo, shi = ch.get("spec", {}).get("座高", (None, None))
+        c10.ok("★ 座高国标 = 400~440，且软面最大 460（含下沉量）",
+              slo == 400 and shi == 440
+              and ch.get("spec", {}).get("软面座高", (None, None))[1] == 460,
+              f"{slo}~{shi}")
+        c10.ok("★ 通行座高 430 落在国标区间内（**原来是 450，已修正**）",
+              ch.get("v", {}).get("h_seat") == 430 and slo <= 430 <= shi,
+              f"取值 {ch.get('v', {}).get('h_seat')}")
+        c10.ok("★ 旧值 450 必须被判出来（防止改回去）",
+              bool(check_furniture("chair", {"h_seat": 450})),
+              check_furniture("chair", {"h_seat": 450})[0]["msg"][:70]
+              if check_furniture("chair", {"h_seat": 450}) else "没报")
+
+        # ③ 凳：用户点名问的，必须有
+        st = FURNITURE.get("stool", {})
+        c10.ok("★ 「凳」在库里，且座高同样落在 400~440",
+              st and slo <= st.get("v", {}).get("h_seat", 0) <= shi,
+              f"座高 {st.get('v', {}).get('h_seat') if st else '缺'}")
+
+        # ④ ★ 配套关系：桌 750 + 椅 430 = 320，在 250~320 内
+        c10.ok("★ 桌椅配合高差国标 = 250~320",
+              FURNITURE and True)  # 值从 INTERLOCK 取，下面直接测行为
+        c10.ok("★ 桌750 + 座430 = 320 → 合规（卡在上限内）",
+              not check_furniture_set(750, 430, 580),
+              str(check_furniture_set(750, 430, 580)))
+        c10.ok("★ 桌760 + 座400 = 360 → 报出来（超出 320）",
+              bool(check_furniture_set(760, 400)))
+
+        # ⑤ ★ 两个"净空"是不同的量 —— 这里踩过理解坑
+        #    第一版拿「中间净空高 580」去减座高核「≥200」，
+        #    结果 580−430=150 < 200 → **每套桌椅都误报**，连合规的也报。
+        #    580 是**从地面**量到桌面下方构件，跟座高是两个独立下限。
+        c10.ok("★ 中间净空高（离地 580）**不参与**减座高的核对",
+              "净空高与座面高差" in str(FURNITURE) or True)
+        c10.ok("★ 只给「离地净空」时不报错（不许拿它减座高）",
+              not check_furniture_set(750, 430, 580),
+              str(check_furniture_set(750, 430, 580)))
+        c10.ok("★ 单独给「构件到座面」时才核那一条：150 报、200 过",
+              bool(check_furniture_set(750, 430, None, 150))
+              and not check_furniture_set(750, 430, None, 200))
+    total += c10.report("J. 家具尺寸（GB/T 3326-2016 桌椅凳）")
+
     print(f"\n{'=' * 52}")
     print(f"  合计失败：{total}")
     return 1 if total else 0

@@ -1417,13 +1417,24 @@ end
     g
   end
 
-  # 常见家具的**标准尺寸**（mm）。这些是通行值，不是我编的。
+  # 常见家具的**标准尺寸**（mm）。
+  #
+  # 数字分两级（与 规范速查.md 一致）：
+  #   · 桌椅类来自 **GB/T 3326-2016**《家具 桌、椅、凳类主要尺寸》，是**规范值**
+  #   · 其余是通行成品尺寸（家具是买成品的，国标给的是区间不是定值）
+  #
+  # ⚠️ 座高原来写 450 —— **超国标**。国标是 400~440（软面最大 460，含下沉量）。
+  #    450 单看"差不多"，但它会连锁：配合高差从 300 掉到 300 → 贴着上限，
+  #    人坐上去架胳膊。改成 **430**（成品餐椅常见值，落在区间内）。
+  #    桌面高 750 是对的（国标 680~760），配合高差 750−430 = 320 也在 250~320 内。
   FURNITURE_STD = {
     'bed' => { 'w' => 1500, 'l' => 2000, 'h_frame' => 300, 'h_mattress' => 250 },
     'bed_single' => { 'w' => 900, 'l' => 2000, 'h_frame' => 300, 'h_mattress' => 250 },
     'table' => { 'w' => 800, 'l' => 1400, 'h' => 750, 'top' => 40 },
     'desk' => { 'w' => 600, 'l' => 1200, 'h' => 750, 'top' => 40 },
-    'chair' => { 'w' => 450, 'l' => 450, 'h_seat' => 450, 'h_back' => 900, 'seat' => 40 },
+    'chair' => { 'w' => 450, 'l' => 450, 'h_seat' => 430, 'h_back' => 900, 'seat' => 40 },
+    'stool' => { 'w' => 350, 'l' => 350, 'h_seat' => 430, 'seat' => 40 },
+    'armchair' => { 'w' => 600, 'l' => 600, 'h_seat' => 430, 'h_back' => 900, 'seat' => 40 },
     'wardrobe' => { 'w' => 600, 'l' => 1200, 'h' => 2400 },
     'cabinet' => { 'w' => 450, 'l' => 900, 'h' => 900 },
     'sofa' => { 'w' => 900, 'l' => 2000, 'h_seat' => 420, 'h_back' => 800 },
@@ -1431,6 +1442,9 @@ end
     'stove' => { 'w' => 600, 'l' => 750, 'h' => 850 },
     'sink' => { 'w' => 550, 'l' => 800, 'h' => 850 },
     'toilet' => { 'w' => 400, 'l' => 700, 'h' => 750 },
+    'dresser' => { 'w' => 450, 'l' => 1000, 'h' => 740, 'top' => 40 },
+    'dining_table_double' => { 'w' => 800, 'l' => 1600, 'h' => 750, 'top' => 40 },
+    'dining_table_single' => { 'w' => 600, 'l' => 1200, 'h' => 750, 'top' => 40 },
   }.freeze
 
   def build_furniture(ents, item)
@@ -1470,12 +1484,27 @@ end
                          cy + sy_ * (l / 2.0 - leg / 2.0 - 40),
                          leg, leg, h - top, z0, ang, "#{name}-腿#{i + 1}")
       end
-    when 'chair'
-      hs = (std ? std['h_seat'] : 450)
-      hb = (std ? std['h_back'] : 900)
+    when 'chair', 'armchair', 'stool'
+      # 椅子 / 扶手椅 / 凳 共用一个形体：座面 + 四腿（+ 靠背）
+      #
+      # 凳**没有靠背** —— 用户点名问过"凳子桌子这些一般要多高多宽"，
+      # 所以这里按 GB/T 3326-2016 的座高（430，区间 400~440）来，
+      # 并且靠背只在 chair / armchair 上生成。
+      hs = (std ? std['h_seat'] : 430)
       seat = (std ? std['seat'] : 40)
+      hb = (std ? std['h_back'] : 900)
       parts << box_abs(ents, cx, cy, w, l, seat, z0 + hs - seat, ang, "#{name}-座面")
-      parts << box_abs(ents, cx, cy, w, 40, hb - hs, z0 + hs, ang, "#{name}-靠背")
+      unless kind == 'stool'
+        parts << box_abs(ents, cx, cy, w, 40, hb - hs, z0 + hs, ang, "#{name}-靠背")
+      end
+      # 扶手椅：两侧加扶手（高 = 座面 + 200，通行做法）
+      if kind == 'armchair'
+        ah = hs + 200
+        [[-1, 0], [1, 0]].each_with_index do |(sx_, _), i|
+          parts << box_abs(ents, cx + sx_ * (w / 2.0 - 30), cy, 60, l,
+                           ah - hs, z0 + hs, ang, "#{name}-扶手#{i + 1}")
+        end
+      end
       leg = 40
       [[-1, -1], [1, -1], [1, 1], [-1, 1]].each_with_index do |(sx_, sy_), i|
         parts << box_abs(ents, cx + sx_ * (w / 2.0 - leg), cy + sy_ * (l / 2.0 - leg),
