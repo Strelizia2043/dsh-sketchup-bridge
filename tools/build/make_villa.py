@@ -438,40 +438,63 @@ def materials():
 # ══════════════════════════════════════════════════════════════
 # 八、组装
 # ══════════════════════════════════════════════════════════════
-def build():
-    return {
+def build(shell_only: bool = False):
+    """组装数据。
+
+    `shell_only=True` 时只输出**外部框架**：
+      外墙 + 楼板 + 屋面 + 女儿墙（+ 外墙上的玻璃洞口）
+    去掉：内墙、房间（地面/天花）、楼梯、家具。
+
+    为什么要有这个开关：用户的要求是
+      **"先把外部框架整体做好，再做内饰，先把分组分好"** ——
+    分两步走，先确认外壳（平整、无分割线、分组正确），再加内饰。
+    """
+    d = {
         "meta": {
-            "name": "现代豪宅（从零设计，无平面图）",
+            "name": ("现代豪宅 · 外部框架（从零设计，无平面图）" if shell_only
+                     else "现代豪宅（从零设计，无平面图）"),
             "notes": [
                 "**没有平面图** —— 这份数据是按规范从零设计的，不是读图得到的。",
                 "所有尺寸 source=assumed，请逐条核对。",
                 "设计依据：规范速查.md（GB50096 / GB50352 / GB3326）",
-            ],
+            ] + (["**本份只含外部框架**：外墙 / 楼板 / 屋面 / 女儿墙。"
+                  "内饰（内墙、房间、楼梯、家具）另一步再做。"] if shell_only else []),
             "wall_mode": "grouped",
         },
         "floors": floors(),
         "walls": walls_l1() + walls_l2(),
-        "rooms": rooms(),
-        "stairs": stairs(),
+        "rooms": [] if shell_only else rooms(),
+        "stairs": [] if shell_only else stairs(),
         "roof": roof(),
         "elevations": elevations(),
-        "furniture": furniture(),
+        "furniture": [] if shell_only else furniture(),
         "materials": materials(),
         "envelope_ceiling": {"skip": True},
     }
+    if shell_only:
+        # 只留外墙。内墙不进数据 —— 这样连分组都不会出现 WI-/WP-
+        d["walls"] = [w for w in d["walls"] if w.get("kind") == "wall_out"]
+    return d
 
 
 if __name__ == "__main__":
+    import sys
+    shell = "--shell" in sys.argv
     here = os.path.dirname(os.path.abspath(__file__))
-    out = os.path.normpath(os.path.join(here, "..", "..", "modern_villa.json"))
-    d = build()
+    name = "modern_villa_shell.json" if shell else "modern_villa.json"
+    out = os.path.normpath(os.path.join(here, "..", "..", name))
+    d = build(shell_only=shell)
     with open(out, "w", encoding="utf-8") as f:
         json.dump(d, f, ensure_ascii=False, indent=1)
     nop = sum(len(w["openings"]) for w in d["walls"])
-    print(f"  已生成 {out}")
+    print(f"  已生成 {out}{'（**只含外部框架**）' if shell else ''}")
     print(f"    {len(d['floors'])} 块楼板 / {len(d['walls'])} 面墙 / {nop} 个洞口")
     print(f"    {len(d['rooms'])} 个房间 / {len(d['furniture'])} 件家具")
-    print(f"    {len(d['stairs'])} 部楼梯 / {len(d['roof'])} 个屋面 / {len(d['elevations'])} 段女儿墙")
+    print(f"    {len(d['stairs'])} 部楼梯 / {len(d['roof'])} 个屋面 / "
+          f"{len(d['elevations'])} 段女儿墙")
+    if shell:
+        print("    ⏭  内墙 / 房间 / 楼梯 / 家具：本份不含（外壳优先）")
+        raise SystemExit(0)
 
     # ── 自检：**几何"没重叠"不等于"合理"**
     #

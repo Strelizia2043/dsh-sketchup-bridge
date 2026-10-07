@@ -559,26 +559,90 @@ module DshParts
   def build_walls(ents, walls, envelope: nil, mat: nil)
     ws = Array(walls)
     return [] if ws.empty?
-    env = envelope || wall_envelope(ws)
-    exts = wall_end_extensions(ws, env)
 
-    buckets = Hash.new { |h, k| h[k] = [] }
-    ws.each_with_index do |w, i|
-      cat = wall_category_of(w)
-      wall_blocks(w, exts[i][0], exts[i][1], env).each do |rect, za, zb|
-        buckets[[cat, za.round, zb.round]] << rect
-      end
+    # ── 关键：**按"楼层区间"分组后再分带**
+    #
+    # 踩过的坑（用户一眼看出来的"墙面有分割线"）：
+    # 原来是把**全部**墙一起按 z 分桶，于是
+    #     一层墙（洞口 900/2100/2400）与二层墙（3200..5900）的分带混在一起，
+    # 产生出**互相重叠**的区间：
+    #     WO-外墙-Z0_3000 面74  与  WO-外墙-Z0_900  面60    ← 同一段墙建了两遍！
+    #     WO-外墙-Z3200_6200 面56 与 WO-外墙-Z3200_4100 面54
+    # 重叠 = 互相穿插 = 外面看着全是线。
+    #
+    # 正解：**一层墙只和一层墙分带**。判据用"墙的 z 区间是否相同"——
+    # 同一层的墙 base_z 与 height 一致，不同层必然不同。
+    groups = ws.group_by do |w|
+      z0 = (w['base_z'] || 0).to_f
+      [z0.round, (z0 + w['height'].to_f).round]
     end
 
     out = []
-    buckets.sort_by { |(cat, za, _), _| [CATEGORIES.index { |c| c[:key] == cat } || 99, za] }
-           .each do |(cat, za, zb), rects|
-      name = group_name(cat, za, zb)
-      r = extrude_profile(ents, name, rects, za, zb - za, mat: mat)
-      want = rect_area(rects) / 1e6 * (zb - za) / 1000.0
-      r = r.merge(category: cat, z0: za, z1: zb, want: want,
-                  ok: r[:volume_m3] && (r[:volume_m3] - want).abs < 0.01)
-      out << r
+    groups.sort_by { |k, _| k[0] }.each do |(_z0, _z1), layer|
+      env_l = envelope || wall_envelope(layer)
+      exts = wall_end_extensions(layer, env_l)
+
+      # 本层所有洞口的 z 边界（并集）—— 只在这些高度分段，
+      # 段内每面墙的竖向截面都恒定，轮廓推拉才成立。
+      zcuts = layer.flat_map do |w|
+        base = (w['base_z'] || 0).to_f
+        (w['openings'] || []).flat_map do |o|
+          sill = o['sill'].to_f
+          oh = o['height'].to_f
+          oh = w['height'].to_f if oh <= 0
+          [base + sill, base + sill + oh]
+        end
+      end
+      lo = layer.map { |w| (w['base_z'] || 0).to_f }.min
+      hi = layer.map { |w| (w['base_z'] || 0).to_f + w['height'].to_f }.max
+      cuts = ([lo, hi] + zcuts).select { |z| z >= lo - 1 && z <= hi + 1 }.uniq.sort
+      cuts = [lo, hi] if cuts.size < 2
+
+      cuts.each_cons(2) do |za, zb|
+        next if zb - za < 1
+        buckets = Hash.new { |h, k| h[k] = [] }
+        layer.each_with_index do |w, i|
+          cat = wall_category_of(w)
+          wall_blocks(w, exts[i][0], exts[i][1], env_l).each do |rect, bz0, bz1|
+            # ⚠️ 先把这块**按本层所有切点细分**，再按细分后的区间归带。
+            #
+            # 这是这个函数里最难的一处，踩了两次：
+            #
+            # 根因：**同一面墙里，不同墙段的 z 分界本来就不同**。
+            #   实测南外墙：
+            #     z 0..3000    x  120..1120   ← 没洞口的墙段，整层高
+            #     z 0..900     x 1122..2320   ← 有窗的墙段，切成上下两截
+            #     z 2400..3000 x 1120..2320
+            #   所以"按整面墙的 z 区间分带"根本不成立。
+            #
+            # 两次错的判据：
+            #   ① `bz0 <= za && bz1 >= zb`（覆盖）→ 整层高的块在每个带里都成立
+            #      → 被重复建 4 次，产出**互相嵌套**的实体（Z0_3000 里含 Z0_900）
+            #   ② `bz0 == za && bz1 == zb`（精确相等）→ 0..3000 的块一个带都匹配不上
+            #      → **整块丢失**（那面没洞口的墙就没了）
+            #
+            # 正解：细分到与切点对齐，每个细分块必然**恰好属于一个带**。
+            (cuts.each_cons(2).to_a).each do |sa, sb|
+              next if sb - sa < 1
+              next unless bz0 <= sa + 1 && bz1 >= sb - 1     # 这块覆盖该细分段
+              next unless (sa - za).abs < 1 && (sb - zb).abs < 1
+              buckets[cat] << rect
+            end
+          end
+        end
+        buckets.each do |cat, rects|
+          next if rects.empty?
+          # 合并共面矩形 —— 不做这一步，同一面墙会以重叠矩形进入网格分解，
+          # 切出一堆多余碎面（实测一层南面被切成 3 片而不是 1 片）。
+          rects = merge_coplanar_rects(rects)
+          next if rects.empty?
+          name = group_name(cat, za, zb)
+          r = extrude_profile(ents, name, rects, za, zb - za, mat: mat)
+          want = rect_area(rects) / 1e6 * (zb - za) / 1000.0
+          out << r.merge(category: cat, z0: za, z1: zb, want: want,
+                         ok: r[:volume_m3] && (r[:volume_m3] - want).abs < 0.01)
+        end
+      end
     end
     out
   end
@@ -612,6 +676,49 @@ module DshParts
             "或语义别名：#{KIND_ALIAS.keys.join(', ')}"
     end
     sym
+  end
+
+  # 合并同一平面上的共面矩形（消掉"本来可以是一整片"的碎面）。
+  #
+  # 为什么需要它（用户一眼看出来的"墙面有分割线"）：
+  #   `wall_end_extensions` 会让相接的墙各延伸出去，于是**同一道墙会得到
+  #   互相重叠的矩形**（整面墙一个 + 两端各一个延伸块）。它们共面、有重叠，
+  #   经网格分解后就会切出一堆多余碎面 —— 实测一层南面被切成
+  #   300 / 3020 / 7500 三片（本该是一整片 14520）。
+  #
+  # 做法：按 y 区间分组 → 组内按 x 排序 → 首尾相接或重叠的就并成一条。
+  # 只处理轴对齐矩形（本项目的墙全是轴对齐的）。
+  def merge_coplanar_rects(rects, tol = 1.0)
+    rs = rects.select { |r| r[2] - r[0] > tol && r[3] - r[1] > tol }
+    return rs if rs.size <= 1
+
+    # 先按 (y0, y1) 分组，组内沿 x 合并
+    out = []
+    rs.group_by { |r| [r[1].round, r[3].round] }.each_value do |grp|
+      grp.sort_by { |r| r[0] }.each do |r|
+        last = out.last
+        if last && last[1].round == r[1].round && last[3].round == r[3].round &&
+           r[0] <= last[2] + tol
+          last[2] = [last[2], r[2]].max
+        else
+          out << r.dup
+        end
+      end
+    end
+    # 再按 (x0, x1) 分组，组内沿 y 合并（处理竖墙）
+    out2 = []
+    out.group_by { |r| [r[0].round, r[2].round] }.each_value do |grp|
+      grp.sort_by { |r| r[1] }.each do |r|
+        last = out2.last
+        if last && last[0].round == r[0].round && last[2].round == r[2].round &&
+           r[1] <= last[3] + tol
+          last[3] = [last[3], r[3]].max
+        else
+          out2 << r.dup
+        end
+      end
+    end
+    out2
   end
 
   # 矩形集合的并集面积（mm²）—— 用网格中点判定，和 extrude_profile 同一套逻辑

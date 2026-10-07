@@ -664,6 +664,60 @@ puts "VOLS=#{res.map { |x| (x[:volume_m3] || -1).round(4) }.inspect}"
                "（有这条才说明上一条不是把规则整个关掉了）")
     total += c11.report("K. 防假阳性（厨卫门进风缝 / 辅助空间门）")
 
+    # ── L. 墙体分带：不许重叠、不许嵌套、不许丢块
+    #
+    # 用户一眼看出来的问题："墙面要看上去平整，不要有分割线"。
+    # 追下去发现墙被**重复建**了 —— 同一段墙出现在多个组里、互相嵌套：
+    #     WO-外墙-Z0_3000 面74   ← 把 0..900 那段也含进去了
+    #     WO-外墙-Z0_900  面60   ← 同一段又建一遍
+    # 外面看就是一堆线。
+    #
+    # 根因：**同一面墙里不同墙段的 z 分界本来就不同** ——
+    #   实测南外墙：z 0..3000 是没洞口的墙段，z 0..900 / 2400..3000
+    #   是有窗的墙段。所以"按整面墙的 z 区间分带"根本不成立。
+    #
+    # 两次错的判据（都留下断言，防止改回去）：
+    #   ① 覆盖 `bz0<=za && bz1>=zb` → 整层高的块在每个带里都成立 → 重复建
+    #   ② 精确相等 `bz0==za && bz1==zb` → 0..3000 的块一个带都匹配不上 → 整块丢失
+    # 正解：细分到与切点对齐，每个细分块恰好属于一个带。
+    c12 = Check()
+    r = ruby(SETUP + '''
+# 两面墙：A 全高无洞口，B 中间有窗。两者都要在场，才能暴露①和②两个错判据。
+walls = [
+  { 'name' => 'A', 'from' => [0.0, 0.0], 'to' => [4000.0, 0.0],
+    'thickness' => 240.0, 'height' => 3000.0, 'base_z' => 0.0, 'openings' => [] },
+  { 'name' => 'B', 'from' => [0.0, 3000.0], 'to' => [4000.0, 3000.0],
+    'thickness' => 240.0, 'height' => 3000.0, 'base_z' => 0.0,
+    'openings' => [{ 'type' => 'window', 'u' => 1000.0, 'width' => 2000.0,
+                     'height' => 1500.0, 'sill' => 900.0 }] }
+]
+res = DshParts.build_walls(ents, walls)
+bands = res.map { |x| [x[:z0], x[:z1]] }.sort
+# 检查两两不重叠（严格：后一个的起点 >= 前一个的终点）
+ov = bands.each_cons(2).count { |a, b| b[0] < a[1] - 1 }
+# 检查每一段都有实体，没有"面数为 0"的空组
+empty = res.count { |x| (x[:faces] || 0) == 0 }
+# 检查 A（无洞口的那面墙）没有被丢掉：z 900..2400 这一段必须有实体
+mid = res.find { |x| x[:z0].abs < 1 && (x[:z1] - 900).abs < 1 }
+puts "NBANDS=#{bands.size}"
+puts "NESTED=#{ov}"
+puts "EMPTY=#{empty}"
+puts "BANDS=#{bands.inspect}"
+puts "VOLOK=#{res.count { |x| x[:ok] }}/#{res.size}"
+puts "MID=#{mid ? mid[:faces] : -1}"
+''')
+    v = kv(r)
+    c12.ok("★ 墙体分带不重叠、不嵌套（防「同一段墙建两遍」）",
+          v.get("NESTED") == "0", f"嵌套 {v.get('NESTED')} 对，分带 {v.get('BANDS')}")
+    c12.ok("★ 没有空组", v.get("EMPTY") == "0", f"空组 {v.get('EMPTY')} 个")
+    # 无洞口的那面墙，在 z 900..2400（另一面墙的窗洞高度）里**仍然有实体**
+    c12.ok("★ 无洞口的那面墙没有被丢掉（防「精确相等」判据）",
+          int(v.get("MID", "0") or 0) > 0, f"该段面数 {v.get('MID')}")
+    c12.ok("★ 每段体积自检通过",
+          (v.get("VOLOK") or "").split("/")[0] == (v.get("VOLOK") or "").split("/")[-1],
+          f"通过 {v.get('VOLOK')}")
+    total += c12.report("L. 墙体分带（防「墙面分割线」）")
+
     print(f"\n{'=' * 52}")
     print(f"  合计失败：{total}")
     return 1 if total else 0
