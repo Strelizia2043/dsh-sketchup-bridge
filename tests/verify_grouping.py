@@ -608,6 +608,62 @@ puts "VOLS=#{res.map { |x| (x[:volume_m3] || -1).round(4) }.inspect}"
               and not check_furniture_set(750, 430, None, 200))
     total += c10.report("J. 家具尺寸（GB/T 3326-2016 桌椅凳）")
 
+    # ── K. 两处"假阳性"的修复（都在建别墅时被抓出来的）
+    #
+    # 共同点：**核对器报的问题其实不是问题**。
+    # 假阳性比不报更糟 —— 用户会照着不存在的"问题"去改合规的数据。
+    c11 = Check()
+    if _ok:
+        import copy
+        from code_standards import check_plan, DOORS, _door_kind
+
+        # ① 厨卫门已经留了进风缝，就不该再报「5.8.6 要留缝」
+        base = {"walls": [{"name": "W-卫生间墙", "height": 3000, "openings": [
+            {"type": "door", "width": 700, "height": 2100, "label": "卫生间门"}]}],
+            "stairs": [], "rooms": []}
+        c11.ok("厨卫门**没留缝** → 报（GB50096 5.8.6）",
+               len(check_plan(base)) >= 1)
+        d1 = copy.deepcopy(base)
+        d1["walls"][0]["openings"][0]["vent_gap"] = 30
+        c11.ok("★ 厨卫门**已留 30mm 缝** → 不再报（防假阳性）",
+               not [q for q in check_plan(d1) if "5.8.6" in q["src"]],
+               f"仍报 {len([q for q in check_plan(d1) if '5.8.6' in q['src']])} 条")
+        d2 = copy.deepcopy(base)
+        d2["walls"][0]["openings"][0]["vent"] = True
+        c11.ok("★ `vent: true` 也认（两种写法都支持）",
+               not [q for q in check_plan(d2) if "5.8.6" in q["src"]])
+        d3 = copy.deepcopy(base)
+        d3["walls"][0]["openings"][0]["vent_gap"] = 10
+        c11.ok("★ `vent_gap=10` 太小 → 仍然报",
+               [q for q in check_plan(d3) if "5.8.6" in q["src"]])
+
+        # ② 辅助空间的门：国标没规定，不该按"卧室门"去拦
+        #
+        # 实测：800 宽的家政间门被启发式落到「卧室门」（要 900）→ 误报。
+        # GB50096 表5.8.7 只列了 户门/起居室/卧室/厨房/卫生间/阳台 六类。
+        c11.ok("★ 「家政间门」判为辅助门，不是卧室门",
+               _door_kind("W-南区块北墙", "家政间门") == "辅助门",
+               _door_kind("W-南区块北墙", "家政间门"))
+        c11.ok("★ 辅助门标 `通行`（国标未规定，不能硬拦）",
+               DOORS["辅助门"]["conf"] == "通行",
+               DOORS["辅助门"]["src"])
+        housekeeping = {"walls": [{"name": "W-南区块北墙", "height": 3000,
+                                   "openings": [{"type": "door", "width": 800,
+                                                 "height": 2100,
+                                                 "label": "家政间门"}]}],
+                        "stairs": [], "rooms": []}
+        c11.ok("★ 800 宽家政间门 → **不报**（防「按卧室门硬拦」的假阳性）",
+               not check_plan(housekeeping),
+               str(check_plan(housekeeping))[:100])
+        # 配对：真正的卧室门 800 仍然要报
+        bedrm = {"walls": [{"name": "W-走廊墙", "height": 3000, "openings": [
+            {"type": "door", "width": 800, "height": 2100, "label": "次卧门"}]}],
+            "stairs": [], "rooms": []}
+        c11.ok("★ 配对断言：800 宽的**卧室门**仍然要报（要 900）",
+               bool(check_plan(bedrm)),
+               "（有这条才说明上一条不是把规则整个关掉了）")
+    total += c11.report("K. 防假阳性（厨卫门进风缝 / 辅助空间门）")
+
     print(f"\n{'=' * 52}")
     print(f"  合计失败：{total}")
     return 1 if total else 0

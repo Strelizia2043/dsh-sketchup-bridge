@@ -50,6 +50,11 @@ DOORS = {
     "厨房门":  {"w": 800, "h": 2100, "src": "GB50096-2011 表5.8.7", "conf": "规范"},
     "卫生间门": {"w": 700, "h": 2100, "src": "GB50096-2011 表5.8.7", "conf": "规范"},
     "阳台门":  {"w": 800, "h": 2100, "src": "GB50096-2011 表5.8.7", "conf": "规范"},
+    # 辅助空间（家政间 / 贮藏室 / 设备间）——**国标里没有这一条**。
+    # 所以标 `通行`，只提示不硬拦：典型做法取 700~800。
+    # 有了这一类，800 宽的家政间门就不会再被误判成"卧室门（要 900）"。
+    "辅助门":  {"w": 700, "h": 2100, "src": "国标未规定，按通行做法取 700",
+               "conf": "通行"},
     # 无障碍（GB 50763）—— 通行值，本文件不硬拦
     "无障碍门": {"w": 800, "h": 2100, "src": "GB50763 通行值", "conf": "通行"},
 }
@@ -804,14 +809,25 @@ def check_plan(data: dict) -> list[dict]:
                                 f"还是图纸上确实就这么宽？",
                                 iss["src"])
                 # 5.8.6 厨房/卫生间门必须能进风
+                #
+                # ⚠️ 数据里可能**已经解决了**这个问题（`vent_gap` 字段，
+                # 或 `vent: true`）。第一版不看这两个字段、一律报，
+                # 于是"已按规范留了 30mm 缝"的门**照样被报不合规**——
+                # 假阳性会让用户以为有问题，比不报还糟。
                 if any(k in (wn + label) for k in ("厨房", "卫生间", "卫", "厕")):
-                    add(f"{wn} / {label}",
-                        f"规范的强制要求：{KITCHEN_BATH_DOOR_GAP['src']} 规定厨房/"
-                        f"卫生间门下部要能进风（有效截面积 ≥0.02m² 的固定百叶，"
-                        f"或距地 ≥30mm 缝隙），否则排油烟机 / 排风扇抽不动",
-                        "这个门留 30mm 门槛缝，还是做百叶？"
-                        "（不留则不达标，但这是你的房子，你说了算）",
-                        KITCHEN_BATH_DOOR_GAP["src"])
+                    gap = o.get("vent_gap")
+                    if gap is None:
+                        gap = KITCHEN_BATH_DOOR_GAP["gap_mm"] if o.get("vent") else None
+                    if gap is not None and gap >= KITCHEN_BATH_DOOR_GAP["gap_mm"]:
+                        pass          # 已经留了缝，合规，不报
+                    else:
+                        add(f"{wn} / {label}",
+                            f"规范的强制要求：{KITCHEN_BATH_DOOR_GAP['src']} 规定厨房/"
+                            f"卫生间门下部要能进风（有效截面积 ≥0.02m² 的固定百叶，"
+                            f"或距地 ≥30mm 缝隙），否则排油烟机 / 排风扇抽不动",
+                            "这个门留 30mm 门槛缝，还是做百叶？"
+                            "（不留则不达标，但这是你的房子，你说了算）",
+                            KITCHEN_BATH_DOOR_GAP["src"])
 
             elif typ in ("window", "窗"):
                 if sill and sill < WINDOW["sill_protect_below"]["v"]:
@@ -890,18 +906,28 @@ def check_plan(data: dict) -> list[dict]:
 
 
 def _door_kind(wall_name: str, label: str) -> str:
-    """按墙名 / 洞口名猜门的类别（用来选对应规范值）。"""
+    """按墙名 / 洞口名猜门的类别（用来选对应规范值）。
+
+    ⚠️ 为什么要有「辅助」这一类：GB50096 表 5.8.7 只列了
+       户门 / 起居室 / 卧室 / 厨房 / 卫生间 / 阳台 六类，
+       **辅助空间（家政间、贮藏室、设备间）根本没有条目**。
+       第一版没有这一类，于是一个 800 宽的家政间门被启发式落到
+       「卧室门」（要求 900）→ **误报不合规**。
+       规范没规定的，就不该按别的类别去拦。
+    """
     s = f"{wall_name}{label}"
     if any(k in s for k in ("户门", "入户", "大门", "entry")):
         return "户门"
-    if "厨" in s:
+    if any(k in s for k in ("厨",)):
         return "厨房门"
     if any(k in s for k in ("卫", "厕", "浴")):
         return "卫生间门"
     if any(k in s for k in ("阳台", "露台")):
         return "阳台门"
-    if any(k in s for k in ("起居", "客厅", "厅")):
+    if any(k in s for k in ("起居", "客厅", "厅", "餐厅")):
         return "起居室门"
+    if any(k in s for k in ("家政", "贮藏", "储物", "设备", "机房", "车库")):
+        return "辅助门"
     return "卧室门"
 
 

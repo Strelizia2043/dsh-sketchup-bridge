@@ -1,0 +1,2234 @@
+{
+ "meta": {
+  "name": "现代豪宅（从零设计，无平面图）",
+  "notes": [
+   "**没有平面图** —— 这份数据是按规范从零设计的，不是读图得到的。",
+   "所有尺寸 source=assumed，请逐条核对。",
+   "设计依据：规范速查.md（GB50096 / GB50352 / GB3326）"
+  ],
+  "wall_mode": "grouped"
+ },
+ "floors": [
+  {
+   "name": "F1-楼板",
+   "z": 0.0,
+   "thickness": 100.0,
+   "polygon": [
+    [
+     0,
+     0
+    ],
+    [
+     15000.0,
+     0
+    ],
+    [
+     15000.0,
+     12000.0
+    ],
+    [
+     0,
+     12000.0
+    ]
+   ],
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "F2-楼板",
+   "z": 3000.0,
+   "thickness": 200.0,
+   "polygon": [
+    [
+     0,
+     0
+    ],
+    [
+     15000.0,
+     0
+    ],
+    [
+     15000.0,
+     12000.0
+    ],
+    [
+     0,
+     12000.0
+    ]
+   ],
+   "source": "assumed",
+   "confidence": "medium"
+  }
+ ],
+ "walls": [
+  {
+   "name": "W-南外墙",
+   "from": [
+    120.0,
+    120.0
+   ],
+   "to": [
+    14880.0,
+    120.0
+   ],
+   "thickness": 240.0,
+   "height": 3000.0,
+   "base_z": 0.0,
+   "joinery": true,
+   "openings": [
+    {
+     "type": "door",
+     "u": 2900.0,
+     "width": 1000.0,
+     "height": 2100.0,
+     "sill": 0.0,
+     "label": "入户门",
+     "note": "户门 1000×2100（GB50096 表5.8.7，2011 修编把户门从 900 提到 1000）",
+     "source": "assumed",
+     "confidence": "medium"
+    },
+    {
+     "type": "window",
+     "u": 1000.0,
+     "width": 1200.0,
+     "height": 1500.0,
+     "sill": 900.0,
+     "label": "客卫南窗",
+     "source": "assumed",
+     "confidence": "medium"
+    },
+    {
+     "type": "door",
+     "u": 4200.0,
+     "width": 3600.0,
+     "height": 2400.0,
+     "sill": 0.0,
+     "label": "客厅落地推拉门",
+     "note": "通高玻璃，需按 GB50096 5.8.1 做临空防护",
+     "source": "assumed",
+     "confidence": "medium"
+    },
+    {
+     "type": "window",
+     "u": 9500.0,
+     "width": 3000.0,
+     "height": 1500.0,
+     "sill": 900.0,
+     "label": "餐厨南窗",
+     "source": "assumed",
+     "confidence": "medium"
+    },
+    {
+     "type": "window",
+     "u": 13500.0,
+     "width": 1800.0,
+     "height": 1500.0,
+     "sill": 900.0,
+     "label": "厨房南窗",
+     "source": "assumed",
+     "confidence": "medium"
+    }
+   ],
+   "kind": "wall_out",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "W-北外墙",
+   "from": [
+    120.0,
+    11880.0
+   ],
+   "to": [
+    14880.0,
+    11880.0
+   ],
+   "thickness": 240.0,
+   "height": 3000.0,
+   "base_z": 0.0,
+   "joinery": true,
+   "openings": [
+    {
+     "type": "window",
+     "u": 1500.0,
+     "width": 2400.0,
+     "height": 1500.0,
+     "sill": 900.0,
+     "label": "主卧北窗",
+     "source": "assumed",
+     "confidence": "medium"
+    },
+    {
+     "type": "window",
+     "u": 5000.0,
+     "width": 1800.0,
+     "height": 1500.0,
+     "sill": 900.0,
+     "label": "主卫北窗",
+     "source": "assumed",
+     "confidence": "medium"
+    },
+    {
+     "type": "window",
+     "u": 9500.0,
+     "width": 4200.0,
+     "height": 1500.0,
+     "sill": 900.0,
+     "label": "多功能室北窗",
+     "source": "assumed",
+     "confidence": "medium"
+    }
+   ],
+   "kind": "wall_out",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "W-西外墙",
+   "from": [
+    120.0,
+    120.0
+   ],
+   "to": [
+    120.0,
+    11880.0
+   ],
+   "thickness": 240.0,
+   "height": 3000.0,
+   "base_z": 0.0,
+   "joinery": true,
+   "openings": [
+    {
+     "type": "window",
+     "u": 2000.0,
+     "width": 1500.0,
+     "height": 1500.0,
+     "sill": 900.0,
+     "label": "客卫西窗",
+     "source": "assumed",
+     "confidence": "medium"
+    },
+    {
+     "type": "window",
+     "u": 8000.0,
+     "width": 4800.0,
+     "height": 1500.0,
+     "sill": 900.0,
+     "label": "主卧西窗",
+     "source": "assumed",
+     "confidence": "medium"
+    }
+   ],
+   "kind": "wall_out",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "W-东外墙",
+   "from": [
+    14880.0,
+    120.0
+   ],
+   "to": [
+    14880.0,
+    11880.0
+   ],
+   "thickness": 240.0,
+   "height": 3000.0,
+   "base_z": 0.0,
+   "joinery": true,
+   "openings": [
+    {
+     "type": "window",
+     "u": 2000.0,
+     "width": 1800.0,
+     "height": 1500.0,
+     "sill": 900.0,
+     "label": "厨房东窗",
+     "source": "assumed",
+     "confidence": "medium"
+    },
+    {
+     "type": "window",
+     "u": 9000.0,
+     "width": 3000.0,
+     "height": 1500.0,
+     "sill": 900.0,
+     "label": "多功能室东窗",
+     "source": "assumed",
+     "confidence": "medium"
+    }
+   ],
+   "kind": "wall_out",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "W-客卫东墙",
+   "from": [
+    2400.0,
+    120.0
+   ],
+   "to": [
+    2400.0,
+    3000.0
+   ],
+   "thickness": 120.0,
+   "height": 3000.0,
+   "base_z": 0.0,
+   "joinery": true,
+   "openings": [],
+   "kind": "wall_in",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "W-玄关隔墙",
+   "from": [
+    4200.0,
+    120.0
+   ],
+   "to": [
+    4200.0,
+    3000.0
+   ],
+   "thickness": 120.0,
+   "height": 3000.0,
+   "base_z": 0.0,
+   "joinery": true,
+   "openings": [],
+   "kind": "wall_in",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "W-玄关北墙",
+   "from": [
+    4200.0,
+    3000.0
+   ],
+   "to": [
+    7900.0,
+    3000.0
+   ],
+   "thickness": 120.0,
+   "height": 3000.0,
+   "base_z": 0.0,
+   "joinery": true,
+   "openings": [
+    {
+     "type": "door",
+     "u": 600.0,
+     "width": 900.0,
+     "height": 2100.0,
+     "sill": 0.0,
+     "label": "客厅入口",
+     "source": "assumed",
+     "confidence": "medium"
+    }
+   ],
+   "kind": "wall_in",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "W-南区块北墙",
+   "from": [
+    120.0,
+    3000.0
+   ],
+   "to": [
+    4200.0,
+    3000.0
+   ],
+   "thickness": 120.0,
+   "height": 3000.0,
+   "base_z": 0.0,
+   "joinery": true,
+   "openings": [
+    {
+     "type": "door",
+     "u": 1400.0,
+     "width": 700.0,
+     "height": 2100.0,
+     "sill": 0.0,
+     "label": "客卫门",
+     "vent_gap": 30.0,
+     "note": "下部留 30mm 进风缝（GB50096-2011 5.8.6，否则排风抽不动）",
+     "source": "assumed",
+     "confidence": "medium"
+    },
+    {
+     "type": "door",
+     "u": 2700.0,
+     "width": 800.0,
+     "height": 2100.0,
+     "sill": 0.0,
+     "label": "家政间门",
+     "source": "assumed",
+     "confidence": "medium"
+    }
+   ],
+   "kind": "wall_in",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "W-南横墙",
+   "from": [
+    120.0,
+    7200.0
+   ],
+   "to": [
+    7900.0,
+    7200.0
+   ],
+   "thickness": 120.0,
+   "height": 3000.0,
+   "base_z": 0.0,
+   "joinery": true,
+   "openings": [
+    {
+     "type": "door",
+     "u": 2000.0,
+     "width": 800.0,
+     "height": 2100.0,
+     "sill": 0.0,
+     "label": "厨房门",
+     "vent_gap": 30.0,
+     "note": "厨房门 800（GB50096 表5.8.7） ｜ 下部留 30mm 进风缝（GB50096-2011 5.8.6，否则排风抽不动）",
+     "source": "assumed",
+     "confidence": "medium"
+    },
+    {
+     "type": "door",
+     "u": 3000.0,
+     "width": 900.0,
+     "height": 2100.0,
+     "sill": 0.0,
+     "label": "主卧门",
+     "source": "assumed",
+     "confidence": "medium"
+    },
+    {
+     "type": "door",
+     "u": 7200.0,
+     "width": 900.0,
+     "height": 2100.0,
+     "sill": 0.0,
+     "label": "衣帽间门",
+     "source": "assumed",
+     "confidence": "medium"
+    }
+   ],
+   "kind": "wall_in",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "W-主卫西墙",
+   "from": [
+    3600.0,
+    7200.0
+   ],
+   "to": [
+    3600.0,
+    11880.0
+   ],
+   "thickness": 120.0,
+   "height": 3000.0,
+   "base_z": 0.0,
+   "joinery": true,
+   "openings": [
+    {
+     "type": "door",
+     "u": 1200.0,
+     "width": 700.0,
+     "height": 2100.0,
+     "sill": 0.0,
+     "label": "主卫门",
+     "vent_gap": 30.0,
+     "note": "下部留 30mm 进风缝（GB50096-2011 5.8.6，否则排风抽不动）",
+     "source": "assumed",
+     "confidence": "medium"
+    }
+   ],
+   "kind": "wall_in",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "W-主卫东墙",
+   "from": [
+    6400.0,
+    7200.0
+   ],
+   "to": [
+    6400.0,
+    11880.0
+   ],
+   "thickness": 120.0,
+   "height": 3000.0,
+   "base_z": 0.0,
+   "joinery": true,
+   "openings": [],
+   "kind": "wall_in",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "W-多功能室西墙",
+   "from": [
+    7900.0,
+    7200.0
+   ],
+   "to": [
+    7900.0,
+    11880.0
+   ],
+   "thickness": 120.0,
+   "height": 3000.0,
+   "base_z": 0.0,
+   "joinery": true,
+   "openings": [
+    {
+     "type": "door",
+     "u": 800.0,
+     "width": 900.0,
+     "height": 2100.0,
+     "sill": 0.0,
+     "label": "多功能室门",
+     "source": "assumed",
+     "confidence": "medium"
+    }
+   ],
+   "kind": "wall_in",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "W-南外墙",
+   "from": [
+    120.0,
+    120.0
+   ],
+   "to": [
+    14880.0,
+    120.0
+   ],
+   "thickness": 240.0,
+   "height": 3000.0,
+   "base_z": 3200.0,
+   "joinery": true,
+   "openings": [
+    {
+     "type": "window",
+     "u": 2400.0,
+     "width": 3000.0,
+     "height": 1800.0,
+     "sill": 900.0,
+     "label": "次卧A南窗",
+     "source": "assumed",
+     "confidence": "medium"
+    },
+    {
+     "type": "window",
+     "u": 9000.0,
+     "width": 3600.0,
+     "height": 1800.0,
+     "sill": 900.0,
+     "label": "家庭厅南窗",
+     "source": "assumed",
+     "confidence": "medium"
+    },
+    {
+     "type": "window",
+     "u": 13500.0,
+     "width": 1800.0,
+     "height": 1800.0,
+     "sill": 900.0,
+     "label": "家庭厅南窗2",
+     "source": "assumed",
+     "confidence": "medium"
+    }
+   ],
+   "kind": "wall_out",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "W-北外墙",
+   "from": [
+    120.0,
+    11880.0
+   ],
+   "to": [
+    14880.0,
+    11880.0
+   ],
+   "thickness": 240.0,
+   "height": 3000.0,
+   "base_z": 3200.0,
+   "joinery": true,
+   "openings": [
+    {
+     "type": "window",
+     "u": 2400.0,
+     "width": 3600.0,
+     "height": 1800.0,
+     "sill": 900.0,
+     "label": "主套北窗",
+     "source": "assumed",
+     "confidence": "medium"
+    },
+    {
+     "type": "window",
+     "u": 10500.0,
+     "width": 3600.0,
+     "height": 1800.0,
+     "sill": 900.0,
+     "label": "主卫北窗",
+     "source": "assumed",
+     "confidence": "medium"
+    }
+   ],
+   "kind": "wall_out",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "W-西外墙",
+   "from": [
+    120.0,
+    120.0
+   ],
+   "to": [
+    120.0,
+    11880.0
+   ],
+   "thickness": 240.0,
+   "height": 3000.0,
+   "base_z": 3200.0,
+   "joinery": true,
+   "openings": [
+    {
+     "type": "window",
+     "u": 2000.0,
+     "width": 3000.0,
+     "height": 1800.0,
+     "sill": 900.0,
+     "label": "次卧A西窗",
+     "source": "assumed",
+     "confidence": "medium"
+    },
+    {
+     "type": "window",
+     "u": 8600.0,
+     "width": 4200.0,
+     "height": 1800.0,
+     "sill": 900.0,
+     "label": "主套西窗",
+     "source": "assumed",
+     "confidence": "medium"
+    }
+   ],
+   "kind": "wall_out",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "W-东外墙",
+   "from": [
+    14880.0,
+    120.0
+   ],
+   "to": [
+    14880.0,
+    11880.0
+   ],
+   "thickness": 240.0,
+   "height": 3000.0,
+   "base_z": 3200.0,
+   "joinery": true,
+   "openings": [
+    {
+     "type": "window",
+     "u": 2000.0,
+     "width": 3000.0,
+     "height": 1800.0,
+     "sill": 900.0,
+     "label": "家庭厅东窗",
+     "source": "assumed",
+     "confidence": "medium"
+    },
+    {
+     "type": "window",
+     "u": 9600.0,
+     "width": 2400.0,
+     "height": 1800.0,
+     "sill": 900.0,
+     "label": "主卫东窗",
+     "source": "assumed",
+     "confidence": "medium"
+    }
+   ],
+   "kind": "wall_out",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "W-二层横墙",
+   "from": [
+    120.0,
+    7200.0
+   ],
+   "to": [
+    14880.0,
+    7200.0
+   ],
+   "thickness": 120.0,
+   "height": 3000.0,
+   "base_z": 3200.0,
+   "joinery": true,
+   "openings": [
+    {
+     "type": "door",
+     "u": 2400.0,
+     "width": 900.0,
+     "height": 2100.0,
+     "sill": 0.0,
+     "label": "次卧A门",
+     "source": "assumed",
+     "confidence": "medium"
+    },
+    {
+     "type": "door",
+     "u": 10000.0,
+     "width": 1800.0,
+     "height": 2400.0,
+     "sill": 0.0,
+     "label": "家庭厅敞口",
+     "source": "assumed",
+     "confidence": "medium"
+    }
+   ],
+   "kind": "wall_in",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "W-次卧B南墙",
+   "from": [
+    4600.0,
+    6300.0
+   ],
+   "to": [
+    7900.0,
+    6300.0
+   ],
+   "thickness": 120.0,
+   "height": 3000.0,
+   "base_z": 3200.0,
+   "joinery": true,
+   "openings": [],
+   "kind": "wall_in",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "W-次卧隔墙",
+   "from": [
+    4600.0,
+    120.0
+   ],
+   "to": [
+    4600.0,
+    7200.0
+   ],
+   "thickness": 120.0,
+   "height": 3000.0,
+   "base_z": 3200.0,
+   "joinery": true,
+   "openings": [
+    {
+     "type": "door",
+     "u": 2400.0,
+     "width": 900.0,
+     "height": 2100.0,
+     "sill": 0.0,
+     "label": "次卧B门",
+     "source": "assumed",
+     "confidence": "medium"
+    }
+   ],
+   "kind": "wall_in",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "W-次卧B东墙",
+   "from": [
+    7900.0,
+    120.0
+   ],
+   "to": [
+    7900.0,
+    7200.0
+   ],
+   "thickness": 120.0,
+   "height": 3000.0,
+   "base_z": 3200.0,
+   "joinery": true,
+   "openings": [],
+   "kind": "wall_in",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "W-主套隔墙",
+   "from": [
+    7900.0,
+    7200.0
+   ],
+   "to": [
+    7900.0,
+    11880.0
+   ],
+   "thickness": 120.0,
+   "height": 3000.0,
+   "base_z": 3200.0,
+   "joinery": true,
+   "openings": [
+    {
+     "type": "door",
+     "u": 800.0,
+     "width": 900.0,
+     "height": 2100.0,
+     "sill": 0.0,
+     "label": "主卧门",
+     "source": "assumed",
+     "confidence": "medium"
+    }
+   ],
+   "kind": "wall_in",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "W-主卫隔墙",
+   "from": [
+    9000.0,
+    7200.0
+   ],
+   "to": [
+    9000.0,
+    11880.0
+   ],
+   "thickness": 120.0,
+   "height": 3000.0,
+   "base_z": 3200.0,
+   "joinery": true,
+   "openings": [
+    {
+     "type": "door",
+     "u": 1200.0,
+     "width": 700.0,
+     "height": 2100.0,
+     "sill": 0.0,
+     "label": "主卫门",
+     "vent_gap": 30.0,
+     "note": "下部留 30mm 进风缝（GB50096-2011 5.8.6，否则排风抽不动）",
+     "source": "assumed",
+     "confidence": "medium"
+    }
+   ],
+   "kind": "wall_in",
+   "source": "assumed",
+   "confidence": "medium"
+  }
+ ],
+ "rooms": [
+  {
+   "name": "客卫",
+   "polygon": [
+    [
+     240.0,
+     240.0
+    ],
+    [
+     2340.0,
+     240.0
+    ],
+    [
+     2340.0,
+     2940.0
+    ],
+    [
+     240.0,
+     2940.0
+    ]
+   ],
+   "base_z": 0,
+   "ceiling_height": 2400.0,
+   "floor_thickness": 60.0,
+   "ceiling_thickness": 100.0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "家政间",
+   "polygon": [
+    [
+     2460.0,
+     240.0
+    ],
+    [
+     4140.0,
+     240.0
+    ],
+    [
+     4140.0,
+     2940.0
+    ],
+    [
+     2460.0,
+     2940.0
+    ]
+   ],
+   "base_z": 0,
+   "ceiling_height": 3000.0,
+   "floor_thickness": 60.0,
+   "ceiling_thickness": 100.0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "玄关",
+   "polygon": [
+    [
+     4260.0,
+     240.0
+    ],
+    [
+     7840.0,
+     240.0
+    ],
+    [
+     7840.0,
+     2940.0
+    ],
+    [
+     4260.0,
+     2940.0
+    ]
+   ],
+   "base_z": 0,
+   "ceiling_height": 3000.0,
+   "floor_thickness": 60.0,
+   "ceiling_thickness": 100.0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "挑空客厅",
+   "polygon": [
+    [
+     4260.0,
+     3060.0
+    ],
+    [
+     7840.0,
+     3060.0
+    ],
+    [
+     7840.0,
+     7140.0
+    ],
+    [
+     4260.0,
+     7140.0
+    ]
+   ],
+   "base_z": 0,
+   "ceiling_height": 3200.0,
+   "floor_thickness": 60.0,
+   "ceiling_thickness": 100.0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "餐厅厨房",
+   "polygon": [
+    [
+     7960.0,
+     240.0
+    ],
+    [
+     14760.0,
+     240.0
+    ],
+    [
+     14760.0,
+     7140.0
+    ],
+    [
+     7960.0,
+     7140.0
+    ]
+   ],
+   "base_z": 0,
+   "ceiling_height": 3000.0,
+   "floor_thickness": 60.0,
+   "ceiling_thickness": 100.0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "主卧",
+   "polygon": [
+    [
+     240.0,
+     7260.0
+    ],
+    [
+     3540.0,
+     7260.0
+    ],
+    [
+     3540.0,
+     11760.0
+    ],
+    [
+     240.0,
+     11760.0
+    ]
+   ],
+   "base_z": 0,
+   "ceiling_height": 3000.0,
+   "floor_thickness": 60.0,
+   "ceiling_thickness": 100.0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "主卫",
+   "polygon": [
+    [
+     3660.0,
+     7260.0
+    ],
+    [
+     6340.0,
+     7260.0
+    ],
+    [
+     6340.0,
+     11760.0
+    ],
+    [
+     3660.0,
+     11760.0
+    ]
+   ],
+   "base_z": 0,
+   "ceiling_height": 2400.0,
+   "floor_thickness": 60.0,
+   "ceiling_thickness": 100.0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "衣帽间",
+   "polygon": [
+    [
+     6460.0,
+     7260.0
+    ],
+    [
+     7840.0,
+     7260.0
+    ],
+    [
+     7840.0,
+     11760.0
+    ],
+    [
+     6460.0,
+     11760.0
+    ]
+   ],
+   "base_z": 0,
+   "ceiling_height": 3000.0,
+   "floor_thickness": 60.0,
+   "ceiling_thickness": 100.0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "多功能室",
+   "polygon": [
+    [
+     7960.0,
+     7260.0
+    ],
+    [
+     14760.0,
+     7260.0
+    ],
+    [
+     14760.0,
+     11760.0
+    ],
+    [
+     7960.0,
+     11760.0
+    ]
+   ],
+   "base_z": 0,
+   "ceiling_height": 3000.0,
+   "floor_thickness": 60.0,
+   "ceiling_thickness": 100.0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "次卧A",
+   "polygon": [
+    [
+     240.0,
+     240.0
+    ],
+    [
+     4540.0,
+     240.0
+    ],
+    [
+     4540.0,
+     6240.0
+    ],
+    [
+     240.0,
+     6240.0
+    ]
+   ],
+   "base_z": 3200.0,
+   "ceiling_height": 3000.0,
+   "floor_thickness": 60.0,
+   "ceiling_thickness": 100.0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "次卧B",
+   "polygon": [
+    [
+     4660.0,
+     240.0
+    ],
+    [
+     7840.0,
+     240.0
+    ],
+    [
+     7840.0,
+     6240.0
+    ],
+    [
+     4660.0,
+     6240.0
+    ]
+   ],
+   "base_z": 3200.0,
+   "ceiling_height": 3000.0,
+   "floor_thickness": 60.0,
+   "ceiling_thickness": 100.0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "家庭厅",
+   "polygon": [
+    [
+     7960.0,
+     240.0
+    ],
+    [
+     14760.0,
+     240.0
+    ],
+    [
+     14760.0,
+     7140.0
+    ],
+    [
+     7960.0,
+     7140.0
+    ]
+   ],
+   "base_z": 3200.0,
+   "ceiling_height": 3000.0,
+   "floor_thickness": 60.0,
+   "ceiling_thickness": 100.0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "主卧套房",
+   "polygon": [
+    [
+     240.0,
+     7260.0
+    ],
+    [
+     7840.0,
+     7260.0
+    ],
+    [
+     7840.0,
+     11760.0
+    ],
+    [
+     240.0,
+     11760.0
+    ]
+   ],
+   "base_z": 3200.0,
+   "ceiling_height": 3000.0,
+   "floor_thickness": 60.0,
+   "ceiling_thickness": 100.0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "主卫",
+   "polygon": [
+    [
+     9060.0,
+     7260.0
+    ],
+    [
+     14760.0,
+     7260.0
+    ],
+    [
+     14760.0,
+     11760.0
+    ],
+    [
+     9060.0,
+     11760.0
+    ]
+   ],
+   "base_z": 3200.0,
+   "ceiling_height": 2400.0,
+   "floor_thickness": 60.0,
+   "ceiling_thickness": 100.0,
+   "source": "assumed",
+   "confidence": "medium"
+  }
+ ],
+ "stairs": [
+  {
+   "name": "ST1",
+   "kind": "double",
+   "from": [
+    10000,
+    6600
+   ],
+   "to": [
+    10000,
+    1200
+   ],
+   "width": 1200,
+   "height": 3200.0,
+   "base_z": 0,
+   "flights": [
+    {
+     "steps": 10,
+     "run": 280
+    },
+    {
+     "steps": 10,
+     "run": 280
+    }
+   ],
+   "landing": {
+    "depth": 1200,
+    "thickness": 150
+   },
+   "between_walls": false,
+   "note": "双跑 10+10；单跑 20 级会被 GB50352 6.8.5 判不合规（上限 18）",
+   "source": "assumed",
+   "confidence": "medium"
+  }
+ ],
+ "roof": [
+  {
+   "name": "RF-平屋面",
+   "form": "flat",
+   "polygon": [
+    [
+     0,
+     0
+    ],
+    [
+     15000.0,
+     0
+    ],
+    [
+     15000.0,
+     12000.0
+    ],
+    [
+     0,
+     12000.0
+    ]
+   ],
+   "thickness": 200.0,
+   "eave": 600,
+   "base_z": 6200.0,
+   "source": "assumed",
+   "confidence": "medium"
+  }
+ ],
+ "elevations": [
+  {
+   "name": "E-南女儿墙",
+   "wall": "W-南外墙",
+   "thickness": 200.0,
+   "profile": [
+    [
+     0,
+     6200.0
+    ],
+    [
+     15000.0,
+     6200.0
+    ],
+    [
+     15000.0,
+     7300.0
+    ],
+    [
+     0,
+     7300.0
+    ]
+   ],
+   "note": "女儿墙高 1100 ≥ 1050（GB50096 6.1.3 临空栏杆）",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "E-北女儿墙",
+   "wall": "W-北外墙",
+   "thickness": 200.0,
+   "profile": [
+    [
+     0,
+     6200.0
+    ],
+    [
+     15000.0,
+     6200.0
+    ],
+    [
+     15000.0,
+     7300.0
+    ],
+    [
+     0,
+     7300.0
+    ]
+   ],
+   "note": "女儿墙高 1100 ≥ 1050（GB50096 6.1.3 临空栏杆）",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "E-西女儿墙",
+   "wall": "W-西外墙",
+   "thickness": 200.0,
+   "profile": [
+    [
+     0,
+     6200.0
+    ],
+    [
+     12000.0,
+     6200.0
+    ],
+    [
+     12000.0,
+     7300.0
+    ],
+    [
+     0,
+     7300.0
+    ]
+   ],
+   "note": "女儿墙高 1100 ≥ 1050（GB50096 6.1.3 临空栏杆）",
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "E-东女儿墙",
+   "wall": "W-东外墙",
+   "thickness": 200.0,
+   "profile": [
+    [
+     0,
+     6200.0
+    ],
+    [
+     12000.0,
+     6200.0
+    ],
+    [
+     12000.0,
+     7300.0
+    ],
+    [
+     0,
+     7300.0
+    ]
+   ],
+   "note": "女儿墙高 1100 ≥ 1050（GB50096 6.1.3 临空栏杆）",
+   "source": "assumed",
+   "confidence": "medium"
+  }
+ ],
+ "furniture": [
+  {
+   "name": "客卫坐便器",
+   "kind": "toilet",
+   "at": [
+    700,
+    1000
+   ],
+   "angle": 90,
+   "z": 0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "客卫洗手台",
+   "kind": "sink",
+   "at": [
+    1800,
+    600
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 420,
+   "l": 900,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "洗衣机",
+   "kind": "cabinet",
+   "at": [
+    2600,
+    700
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 650,
+   "l": 650,
+   "h": 850,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "家政柜",
+   "kind": "cabinet",
+   "at": [
+    3400,
+    1400
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 600,
+   "l": 900,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "玄关柜",
+   "kind": "cabinet",
+   "at": [
+    5000,
+    500
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 450,
+   "l": 2200,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "换鞋凳",
+   "kind": "stool",
+   "at": [
+    6700,
+    500
+   ],
+   "angle": 0,
+   "z": 0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "主沙发",
+   "kind": "sofa",
+   "at": [
+    3800,
+    9000
+   ],
+   "angle": 90,
+   "z": 0,
+   "w": 1100,
+   "l": 2800,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "单椅A",
+   "kind": "armchair",
+   "at": [
+    7000,
+    10600
+   ],
+   "angle": 180,
+   "z": 0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "单椅B",
+   "kind": "armchair",
+   "at": [
+    7000,
+    7600
+   ],
+   "angle": 0,
+   "z": 0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "茶几",
+   "kind": "table",
+   "at": [
+    5200,
+    9100
+   ],
+   "angle": 90,
+   "z": 0,
+   "w": 750,
+   "l": 1500,
+   "h": 400,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "电视柜",
+   "kind": "cabinet",
+   "at": [
+    7500,
+    9100
+   ],
+   "angle": 90,
+   "z": 0,
+   "w": 500,
+   "l": 2600,
+   "h": 500,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "餐桌",
+   "kind": "table",
+   "at": [
+    11200,
+    3600
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 1100,
+   "l": 2400,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "餐椅1",
+   "kind": "chair",
+   "at": [
+    10300,
+    2700
+   ],
+   "angle": 180,
+   "z": 0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "餐椅2",
+   "kind": "chair",
+   "at": [
+    11200,
+    2700
+   ],
+   "angle": 180,
+   "z": 0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "餐椅3",
+   "kind": "chair",
+   "at": [
+    12100,
+    2700
+   ],
+   "angle": 180,
+   "z": 0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "餐椅4",
+   "kind": "chair",
+   "at": [
+    10300,
+    4500
+   ],
+   "angle": 0,
+   "z": 0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "餐椅5",
+   "kind": "chair",
+   "at": [
+    11200,
+    4500
+   ],
+   "angle": 0,
+   "z": 0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "餐椅6",
+   "kind": "chair",
+   "at": [
+    12100,
+    4500
+   ],
+   "angle": 0,
+   "z": 0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "厨房中岛",
+   "kind": "cabinet",
+   "at": [
+    11000,
+    6000
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 950,
+   "l": 2200,
+   "h": 900,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "厨房高柜",
+   "kind": "cabinet",
+   "at": [
+    14500,
+    2200
+   ],
+   "angle": 90,
+   "z": 0,
+   "w": 600,
+   "l": 3000,
+   "h": 2200,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "冰箱",
+   "kind": "fridge",
+   "at": [
+    8300,
+    1000
+   ],
+   "angle": 0,
+   "z": 0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "灶台",
+   "kind": "stove",
+   "at": [
+    13600,
+    6600
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 750,
+   "l": 600,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "水槽",
+   "kind": "sink",
+   "at": [
+    8500,
+    6600
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 800,
+   "l": 550,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "主卧床",
+   "kind": "bed",
+   "at": [
+    1800,
+    10200
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 1800,
+   "l": 2000,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "床头柜A",
+   "kind": "cabinet",
+   "at": [
+    600,
+    11100
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 450,
+   "l": 450,
+   "h": 550,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "床头柜B",
+   "kind": "cabinet",
+   "at": [
+    3000,
+    11100
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 450,
+   "l": 450,
+   "h": 550,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "主卧斗柜",
+   "kind": "cabinet",
+   "at": [
+    3400,
+    8000
+   ],
+   "angle": 90,
+   "z": 0,
+   "w": 500,
+   "l": 1200,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "主卫坐便器",
+   "kind": "toilet",
+   "at": [
+    3900,
+    11200
+   ],
+   "angle": 180,
+   "z": 0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "主卫浴缸",
+   "kind": "cabinet",
+   "at": [
+    5400,
+    11200
+   ],
+   "angle": 90,
+   "z": 0,
+   "w": 800,
+   "l": 2400,
+   "h": 550,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "主卫洗手台",
+   "kind": "sink",
+   "at": [
+    3900,
+    7700
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 550,
+   "l": 1400,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "衣帽间衣柜A",
+   "kind": "wardrobe",
+   "at": [
+    7500,
+    11200
+   ],
+   "angle": 90,
+   "z": 0,
+   "w": 600,
+   "l": 1300,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "衣帽间衣柜B",
+   "kind": "wardrobe",
+   "at": [
+    7500,
+    9200
+   ],
+   "angle": 90,
+   "z": 0,
+   "w": 600,
+   "l": 1300,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "书桌",
+   "kind": "desk",
+   "at": [
+    13000,
+    10400
+   ],
+   "angle": 90,
+   "z": 0,
+   "w": 650,
+   "l": 1700,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "办公椅",
+   "kind": "chair",
+   "at": [
+    12000,
+    10400
+   ],
+   "angle": 90,
+   "z": 0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "书柜",
+   "kind": "wardrobe",
+   "at": [
+    14500,
+    9000
+   ],
+   "angle": 90,
+   "z": 0,
+   "w": 350,
+   "l": 2000,
+   "h": 2200,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "会客沙发",
+   "kind": "sofa",
+   "at": [
+    10000,
+    7900
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 900,
+   "l": 1900,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "次卧A床",
+   "kind": "bed",
+   "at": [
+    2400,
+    2400
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 1500,
+   "l": 2000,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "次卧A床头柜",
+   "kind": "cabinet",
+   "at": [
+    1200,
+    3300
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 450,
+   "l": 450,
+   "h": 550,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "次卧A衣柜",
+   "kind": "wardrobe",
+   "at": [
+    5400,
+    2200
+   ],
+   "angle": 90,
+   "z": 0,
+   "w": 600,
+   "l": 1800,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "次卧A书桌",
+   "kind": "desk",
+   "at": [
+    700,
+    5200
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 600,
+   "l": 1300,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "次卧B床",
+   "kind": "bed_single",
+   "at": [
+    6900,
+    2400
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 1200,
+   "l": 2000,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "次卧B衣柜",
+   "kind": "wardrobe",
+   "at": [
+    7500,
+    4400
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 600,
+   "l": 1400,
+   "h": 2200,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "家庭厅沙发",
+   "kind": "sofa",
+   "at": [
+    12000,
+    2400
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 1000,
+   "l": 2600,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "家庭厅矮柜",
+   "kind": "cabinet",
+   "at": [
+    11500,
+    6600
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 500,
+   "l": 2400,
+   "h": 500,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "家庭厅单椅",
+   "kind": "armchair",
+   "at": [
+    9500,
+    3400
+   ],
+   "angle": 180,
+   "z": 0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "主套卧床",
+   "kind": "bed",
+   "at": [
+    2600,
+    8800
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 1800,
+   "l": 2000,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "主套床头柜A",
+   "kind": "cabinet",
+   "at": [
+    1400,
+    9700
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 450,
+   "l": 450,
+   "h": 550,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "主套床头柜B",
+   "kind": "cabinet",
+   "at": [
+    3800,
+    9700
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 450,
+   "l": 450,
+   "h": 550,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "主套衣柜",
+   "kind": "wardrobe",
+   "at": [
+    7400,
+    9800
+   ],
+   "angle": 90,
+   "z": 0,
+   "w": 600,
+   "l": 2000,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "主套妆台",
+   "kind": "dresser",
+   "at": [
+    700,
+    11200
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 450,
+   "l": 1000,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "二层主卫坐便器",
+   "kind": "toilet",
+   "at": [
+    9400,
+    11200
+   ],
+   "angle": 180,
+   "z": 0,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "二层主卫浴缸",
+   "kind": "cabinet",
+   "at": [
+    11000,
+    11200
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 800,
+   "l": 1700,
+   "h": 550,
+   "source": "assumed",
+   "confidence": "medium"
+  },
+  {
+   "name": "二层主卫洗手台",
+   "kind": "sink",
+   "at": [
+    9400,
+    8600
+   ],
+   "angle": 0,
+   "z": 0,
+   "w": 550,
+   "l": 1400,
+   "source": "assumed",
+   "confidence": "medium"
+  }
+ ],
+ "materials": {
+  "default": {
+   "name": "DSH_Silver",
+   "color": [
+    176,
+    180,
+    186
+   ]
+  },
+  "rules": [
+   {
+    "match": "-玻璃$",
+    "name": "DSH_Glass",
+    "color": [
+     178,
+     214,
+     226
+    ]
+   },
+   {
+    "match": "-门扇$",
+    "name": "DSH_Wood",
+    "color": [
+     140,
+     100,
+     66
+    ]
+   },
+   {
+    "match": "-(框|上槛|下槛)\\d*$",
+    "name": "DSH_Frame",
+    "color": [
+     168,
+     168,
+     164
+    ]
+   },
+   {
+    "match": "^(FU-|FUR-)",
+    "name": "DSH_Wood",
+    "color": [
+     166,
+     124,
+     82
+    ]
+   },
+   {
+    "match": "^R-.*-地面$",
+    "name": "DSH_FloorBrown",
+    "color": [
+     186,
+     140,
+     92
+    ]
+   },
+   {
+    "match": "^R-.*-天花$",
+    "name": "DSH_Stone",
+    "color": [
+     212,
+     206,
+     196
+    ]
+   },
+   {
+    "match": "^(FL-|F1-|F2-)",
+    "name": "DSH_FloorBrown",
+    "color": [
+     186,
+     140,
+     92
+    ]
+   },
+   {
+    "match": "^(RF-|EV-)",
+    "name": "DSH_Roof",
+    "color": [
+     150,
+     148,
+     144
+    ]
+   },
+   {
+    "match": "^(ST-)",
+    "name": "DSH_Stone",
+    "color": [
+     212,
+     206,
+     196
+    ]
+   },
+   {
+    "match": "^(WO-|WI-|WP-)",
+    "name": "DSH_Silver",
+    "color": [
+     176,
+     180,
+     186
+    ]
+   }
+  ]
+ },
+ "envelope_ceiling": {
+  "skip": true
+ }
+}

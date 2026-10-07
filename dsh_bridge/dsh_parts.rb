@@ -564,7 +564,7 @@ module DshParts
 
     buckets = Hash.new { |h, k| h[k] = [] }
     ws.each_with_index do |w, i|
-      cat = (w['kind'] && w['kind'].to_sym) || guess_wall_category(w['name'])
+      cat = wall_category_of(w)
       wall_blocks(w, exts[i][0], exts[i][1], env).each do |rect, za, zb|
         buckets[[cat, za.round, zb.round]] << rect
       end
@@ -581,6 +581,37 @@ module DshParts
       out << r
     end
     out
+  end
+
+  # 墙的类别：先看数据里的 `kind`，没写才按名字猜。
+  #
+  # ⚠️ 这里踩过坑，所以加了一层语义别名。
+  #
+  # `kind` 这个字段名和 `CATEGORIES` 的键**撞车**了：契约里的合法键是
+  # `wall_out` / `wall_in` / `wall_part`，但写数据的人（包括我自己）
+  # 很自然会写 `outer` / `inner` —— 那不是类别键，于是 `group_name`
+  # 直接抛 `ArgumentError: 未知类别 outer`，**整个墙体分支挂掉、回退到逐块做法**，
+  # 而且错误被 rescue 吞进报告里，外面只看到"墙没分组"，很难查。
+  #
+  # 所以：语义别名先映射，映射不到的**才**抛（不静默兜底 —— 那样会错得没边）。
+  KIND_ALIAS = {
+    'outer' => :wall_out, 'exterior' => :wall_out, '外墙' => :wall_out,
+    'inner' => :wall_in,  'interior' => :wall_in,  '内墙' => :wall_in,
+    'partition' => :wall_part, '隔墙' => :wall_part,
+  }.freeze
+
+  def wall_category_of(w)
+    k = w['kind']
+    return guess_wall_category(w['name']) if k.nil? || k.to_s.empty?
+    s = k.to_s
+    sym = KIND_ALIAS[s] || KIND_ALIAS[s.downcase] || s.to_sym
+    unless CATEGORIES.any? { |c| c[:key] == sym }
+      raise ArgumentError,
+            "墙 #{w['name']} 的 kind=#{k.inspect} 不是合法类别；" \
+            "可用：#{CATEGORIES.map { |c| c[:key] }.join(', ')}，" \
+            "或语义别名：#{KIND_ALIAS.keys.join(', ')}"
+    end
+    sym
   end
 
   # 矩形集合的并集面积（mm²）—— 用网格中点判定，和 extrude_profile 同一套逻辑
