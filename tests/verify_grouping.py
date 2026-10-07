@@ -354,6 +354,94 @@ puts "VOLS=#{res.map { |x| (x[:volume_m3] || -1).round(4) }.inspect}"
           "11.172" in (v.get("VOLS") or ""), f"体积 {v.get('VOLS')}")
     total += c7.report("G. 水平大板分组（天花板/屋顶/房檐）")
 
+    # ── H. 规范核对（GB 50096 / GB 50352）——**纯 Python，不碰模型**
+    #
+    # 用户要求："现在允许你自己上网查基本设计原理规范还有知识，
+    # 比如门正常应该多高多宽，灯要放在离地面多高的位置间隔不能少于多少"
+    # 查完必须能**自动用上**，否则等于没查。
+    #
+    # ⚠️ 这里的关键不是"能不能算"，而是**数字有没有出处**。
+    # 所以断言里顺带验证每条问题的 `src` 都非空 —— 没出处的数字不许进清单。
+    c8 = Check()
+    sys.path.insert(0, os.path.join(ROOT, "tools", "build"))
+    try:
+        from code_standards import (check_door, check_stair, check_plan,
+                                    lamp_spacing_max, DOORS, HEIGHT, STAIR)
+        _ok = True
+    except Exception as e:
+        _ok = False
+        c8.ok("能导入 code_standards", False, f"{type(e).__name__}: {e}")
+
+    if _ok:
+        # ① 门：规范值必须对得上条文（数据驱动，不是写死断言）
+        c8.ok("★ 户门规范值 = 1000×2100（GB50096 表5.8.7 2011 修编值）",
+              DOORS["户门"]["w"] == 1000 and DOORS["户门"]["h"] == 2100,
+              f"{DOORS['户门']['w']}×{DOORS['户门']['h']}  {DOORS['户门']['src']}")
+        c8.ok("★ 卫生间门最窄 = 700（规范里最小的一道门）",
+              DOORS["卫生间门"]["w"] == 700, f"{DOORS['卫生间门']['w']}")
+        c8.ok("★ 每条门规范项都有出处（不许有无出处的数字）",
+              all(v.get("src") for v in DOORS.values()),
+              "缺 src 的：" + str([k for k, v in DOORS.items() if not v.get("src")]))
+
+        # ② 门核对：合规不报、不合规要报
+        c8.ok("1.0×2.1 户门 → 通过", not check_door(1000, 2100, "户门"))
+        bad = check_door(700, 2100, "卧室门")
+        c8.ok("★ 0.7 宽的卧室门 → 报出来（规范要 900）",
+              len(bad) == 1 and bad[0]["level"] == "问" and "900" in bad[0]["msg"],
+              bad[0]["msg"] if bad else "没报")
+        c8.ok("★ 报出的问题带规范条文号",
+              bool(bad and bad[0].get("src")), bad[0].get("src") if bad else "")
+
+        # ③ 楼梯：合规通过、不合规报出
+        c8.ok("踏步 200/220、净宽 900（两侧有墙）→ 通过",
+              not check_stair(200, 220, 900, "two_wall", 16))
+        c8.ok("★ 踏步 250/180 → 报踏步高与踏步宽",
+              len(check_stair(250, 180, 900, "two_wall", 16)) >= 2)
+        c8.ok("★ 梯段 20 级 → 报（规范 3~18 级）",
+              any("级" in x["msg"] for x in check_stair(175, 250, 900, "two_wall", 20)))
+        c8.ok("★ 净高 2400 合规、2200 不合规（GB50096 5.5.2）",
+              HEIGHT["卧室起居室净高_min"]["v"] == 2400)
+
+        # ④ ★ 螺旋楼梯的几何死结 —— 这是实测发现的真问题
+        plan_spiral = {
+            "stairs": [{"name": "ST1", "kind": "spiral", "radius": 900,
+                        "steps": 16, "height": 2800, "total_deg": 360}],
+            "walls": [], "rooms": [],
+        }
+        qs = check_plan(plan_spiral)
+        spiral_q = [q for q in qs if "螺旋" in q["at"]]
+        c8.ok("★ 螺旋楼梯（半径900/16级）被判不合规并报出",
+              len(spiral_q) >= 1, f"报了 {len(spiral_q)} 条")
+        if spiral_q:
+            txt = spiral_q[0]["why"] + spiral_q[0]["ask"]
+            # 断言里带上"几何上做不到"这个结论，而不只是"尺寸不对"
+            c8.ok("★ 说明里给出「几何上做不到」的推导（250mm 处踏面 + 级数上限）",
+                  "250" in txt and ("做不出" in txt or "做不到" in txt or "最多" in txt),
+                  spiral_q[0]["why"][:120])
+            c8.ok("★ 给出三条出路（加大半径 / 改直跑 / 接受不合规）",
+                  "加大半径" in spiral_q[0]["ask"] and "直跑" in spiral_q[0]["ask"])
+
+        # ⑤ 灯具间距：用户问的是"不能少于"，规范只规定**上限**
+        sp = lamp_spacing_max("筒灯_宽配光", 2600)
+        c8.ok("★ 灯具间距给出的是**上限**（S ≤ 距离比 × H）",
+              abs(sp["s_max"] - 0.7 * (2600 - 750)) < 1,
+              f"S_max = {sp['s_max']}mm（H = 2600−750 = 1850）")
+        c8.ok("★ 明确标注「规范不规定间距下限」（用户这条问反了）",
+              "下限" in sp["note"], sp["note"])
+
+        # ⑥ 重复问题要合并（4 面外墙的落地玻璃不该问 4 遍）
+        plan_dup = {
+            "walls": [{"name": f"W-外墙{i}", "height": 2700, "openings": [
+                {"type": "window", "width": 3000, "height": 2700,
+                 "sill": 0, "label": f"玻璃{i}"}]} for i in range(4)],
+            "stairs": [], "rooms": [],
+        }
+        dq = check_plan(plan_dup)
+        c8.ok("★ 同类问题合并成一条（4 面墙的落地玻璃只问 1 次）",
+              len(dq) == 1 and dq[0].get("count") == 4,
+              f"报了 {len(dq)} 条，count={dq[0].get('count') if dq else '-'}")
+    total += c8.report("H. 规范核对（GB50096 / GB50352）")
+
     print(f"\n{'=' * 52}")
     print(f"  合计失败：{total}")
     return 1 if total else 0

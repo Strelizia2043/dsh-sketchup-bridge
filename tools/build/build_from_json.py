@@ -139,6 +139,38 @@ def main() -> int:
         if qs is None:
             print("   ⚠️ 没解析到清单，原始输出：" + out[:600])
             return 1
+
+        # ── 规范核对（GB 50096 / GB 50352 等）
+        #
+        # 为什么放这里：`questions_for` 只查"**我读得准不准**"（confidence/source），
+        # 不查"**你这么设计合不合规范**"。两件事都要问用户，但来源不同：
+        #   读数不确定 → 问"图纸上到底是多少"
+        #   尺寸不合规 → 问"要改，还是你就要这样"
+        # 以前只有前者，于是"门只有 700 宽"这种会被默默建出来。
+        #
+        # 每个数字都带规范条文号（见 规范速查.md），只对 **conf="规范"** 的硬拦。
+        #
+        # ⚠️ `code_standards.py` **不在插件目录里** —— 只有 4 个 .rb 会被 install.py
+        # 装进 Plugins。所以不能假设它和本脚本同目录，要多找几处。
+        try:
+            _here = os.path.dirname(os.path.abspath(__file__))
+            for _cand in (
+                _here,                                        # tools/build/（正常）
+                os.path.dirname(_here),                       # tools/
+                ROOT,                                         # 仓库根
+                os.path.join(ROOT, "tools", "build"),
+                # 生成器在插件目录、但 code_standards 在工作区的情况
+                os.path.join(os.path.dirname(GENERATOR), "tools", "build"),
+            ):
+                if _cand and _cand not in sys.path:
+                    sys.path.insert(0, _cand)
+            from code_standards import check_plan
+            code_qs = check_plan(data)
+        except Exception as e:  # 核对失败不能让建模流程挂掉
+            code_qs = []
+            print(f"   ⚠️ 规范核对跳过（{type(e).__name__}: {e}）")
+        if code_qs:
+            qs = list(qs) + code_qs
         if not qs:
             print("   ✅ 没有需要确认的地方（所有尺寸都标了 source: dim 且置信度足够）")
         else:
