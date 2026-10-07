@@ -241,12 +241,17 @@ def main() -> int:
         print(f"   （测试前文档：{b_title or '(未命名)'}  {b_n} 个实体"
               f"{'  路径 ' + b_path if b_path else ''}）")
 
+        # ⚠️ 路径不能写死（原来是 E:/deepseek工作区/...）—— 换机器就跑不了。
+        # 用 ROOT 推；注意 Windows 上是反斜杠，塞进 Ruby 单引号字符串前
+        # 要转成正斜杠，否则 `\U` 之类会被当成转义（Ruby 单引号只转义 \\ 和 \'，
+        # 但混着用很容易踩，统一换成正斜杠最省事）。
+        _skp = os.path.join(ROOT, "models", "_boot_check.skp").replace("\\", "/")
         rc, o, e = fresh("-c",
                          "import sys; sys.path.insert(0, r'%s')\n"
                          "from sk_client import SC\n"
                          "c = SC(timeout=180)\n"
-                         "r = c.save(path='E:/deepseek工作区/sketchup-bridge/models/_boot_check.skp', overwrite=True)\n"
-                         "print('SAVED', r['path'], r['bytes'])" % ROOT)
+                         "r = c.save(path='%s', overwrite=True)\n"
+                         "print('SAVED', r['path'], r['bytes'])" % (ROOT, _skp))
         c.ok("模型能存成 .skp", rc == 0 and "SAVED" in o, o.strip()[:120])
         skp = os.path.join(ROOT, "models", "_boot_check.skp")
         c.ok(".skp 文件确实存在于磁盘", os.path.exists(skp),

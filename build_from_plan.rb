@@ -768,16 +768,49 @@ module DshBuild
     out
   end
 
-  def build_floor(ents, slab)
+  def build_floor(ents, slab, grouped: true)
     name = slab['name'] || 'F'
     poly = slab['polygon']
     z = (slab['z'] || 0).to_f
     raise "楼板 #{name} 缺少 polygon" if poly.nil? || poly.length < 3
     th = (slab['thickness'] || 0).to_f
     b = room_bounds(poly)
-
-    # 有 holes 时：拆成多个无重叠矩形，逐个建（中庭 / 楼梯井就靠这个）
     holes = Array(slab['holes'])
+
+    # ── 推荐做法：**轮廓推拉，一次成型**
+    #
+    # 用户要求"大整体要分组、要用推拉，不能一个一个建盒子堆出来"。
+    # 老做法（下面那段）把带洞楼板拆成多个矩形平铺成 F-板-01/02/03/04，
+    # 组数多、接缝多。现在合成一个实体：
+    #   外轮廓 = 楼板底面矩形，洞 = slab['holes']，一次 add_face + pushpull
+    #
+    # ⚠️ 老做法里有个**静默失败**的坑：为把多块塞进一个母组用了 `move_to`，
+    # 结果母组建出来了但里面是空的（实测"子组 0 个"）。
+    # 轮廓推拉从根上避免了这个问题 —— 只有一个实体，不需要母组。
+    if grouped && th > 0 && defined?(DshParts)
+      begin
+        rects = if holes.any?
+                  hh = holes.map { |h| [h[0].to_f, h[1].to_f, h[2].to_f, h[3].to_f] }
+                  [[b[:x0], b[:y0], hh[0][0], b[:y1]],
+                   [hh[0][2], b[:y0], b[:x1], b[:y1]],
+                   [hh[0][0], b[:y0], hh[0][2], hh[0][1]],
+                   [hh[0][0], hh[0][3], hh[0][2], b[:y1]]]
+                else
+                  [[b[:x0], b[:y0], b[:x1], b[:y1]]]
+                end
+        r = DshParts.extrude_profile(ents, name, rects, z, th)
+        if r[:group]
+          want = DshParts.rect_area(rects) / 1e6 * th / 1000.0
+          r[:group].set_attribute('dsh', 'self_check', format('%.4f/%.4f', r[:volume_m3].to_f, want))
+          return r[:group]
+        end
+        warn_floor = "楼板 #{name} 轮廓推拉失败（#{r[:error]}），回退到逐块做法"
+      rescue StandardError => e
+        warn_floor = "楼板 #{name} 轮廓推拉异常（#{e.class}），回退到逐块做法"
+      end
+    end
+
+    # ── 老做法（回退用）：拆成无重叠矩形，逐个建
     if holes.any?
       rects = floor_with_holes(b[:x0], b[:y0], b[:x1], b[:y1], holes)
       if rects.length == 1
@@ -1811,12 +1844,59 @@ end
       end
     end
 
-    # 转角延伸量：**循环外算一次**，按索引取用。
-    # （不要在循环里用 index(wall) 定位——数据里若有重复对象会取错，
-    #   而且每面墙都重算一遍全部墙的相接关系，纯属浪费。）
-    wall_exts = wall_end_extensions(data['walls'] || [])
+    # ══════════════════════════════════════════════════════════════
+    #  墙体：两种做法，由 `wall_mode` 选择
+    # ══════════════════════════════════════════════════════════════
+    #
+    #   'grouped'（默认）：**按类别成组 + 轮廓推拉，一次成型**
+    #       · 外墙 / 内墙 / 隔墙 各自一组，组内是一个整体
+    #       · 外面没有分割线、面数少（实测 41 组 → 7 组）
+    #       · 用 DshParts.build_walls（轮廓推拉）
+    #
+    #   'legacy'：老做法，每面墙一堆盒子
+    #       · 转角互相重叠、外面有分割线、面数浪费
+    #       · 保留它只是为了**出问题时能退回去**，不建议用
+    #
+    # 用户明确要求："大整体要分组，工具要会用推拉工具和 union，
+    # 不能光靠一个一个建盒子堆出来。"
+    wall_mode = (data['meta'] || {})['wall_mode'] || 'grouped'
+    walls_data = data['walls'] || []
 
-    (data['walls'] || []).each_with_index do |wall, wi|
+    if wall_mode == 'grouped' && !walls_data.empty? && defined?(DshParts)
+      begin
+        res = DshParts.build_walls(ents, walls_data)
+        res.each do |r|
+          if r[:group]
+            r[:group].material = material_for(r[:group].name, nil) rescue nil
+            report[:built] << {
+              kind: 'wall_group', name: r[:group].name, category: r[:category],
+              z0: r[:z0], z1: r[:z1],
+              faces: r[:faces], outers: r[:outers], holes: r[:holes],
+              volume_m3: r[:volume_m3], expect_m3: r[:want]
+            }
+            # 自检：体积必须等于"矩形并集面积 × 高"，否则说明成型错了
+            unless r[:ok]
+              report[:warnings] << format(
+                '墙组 %s 体积 %.3f ≠ 期望 %.3f m³（成型可能有误）',
+                r[:group].name, r[:volume_m3].to_f, r[:want].to_f)
+            end
+          else
+            report[:errors] << "墙组 #{r[:category]}: #{r[:error]}"
+          end
+        end
+      rescue StandardError => e
+        report[:errors] << "分类成组失败（#{e.class}: #{e.message}），已回退到逐块做法"
+        wall_mode = 'legacy'
+      end
+    end
+
+    if wall_mode != 'grouped'
+      # 转角延伸量：**循环外算一次**，按索引取用。
+      # （不要在循环里用 index(wall) 定位——数据里若有重复对象会取错，
+      #   而且每面墙都重算一遍全部墙的相接关系，纯属浪费。）
+      wall_exts = wall_end_extensions(walls_data)
+
+      walls_data.each_with_index do |wall, wi|
       begin
         # 转角处理：相接端各延伸半个墙厚，避免角部空洞（见 wall_end_extensions 的注释）
         eff = wall_with_extensions(wall, wall_exts[wi][0], wall_exts[wi][1])
@@ -1844,7 +1924,8 @@ end
       rescue => e
         report[:errors] << "墙 #{wall['name']}: #{e.class}: #{e.message}"
       end
-    end
+      end                      # walls_data.each_with_index
+    end                        # if wall_mode != 'grouped'
 
     model.commit_operation
 

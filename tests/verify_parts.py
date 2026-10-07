@@ -50,17 +50,26 @@ import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)          # 仓库根（测试在 tests/ 下）
 PY = sys.executable
 TOUCHING_MODEL = "--touching-model" in sys.argv
 
 
 def ruby(code: str, timeout=300):
+    # ⚠️ 要插 **ROOT** 不是 HERE —— sk_client.py 在**仓库根**，不在 tests/。
+    # 这里原来写的是 HERE，于是子进程 import 失败、stdout 是空串，
+    # 测试读到一堆 None 报"全部失败"（**看起来像被测代码坏了，其实是我测错了**）。
+    # 这种假失败最费时间：断言全红，但原因在测试脚手架里。
     src = ("import sys; sys.path.insert(0, r'%s')\n"
            "from sk_client import SC\n"
            "print(SC(timeout=%d).ruby(%r, undo=False).get('output',''))"
-           % (HERE, timeout, code))
-    r = subprocess.run([PY, "-c", src], cwd=HERE, capture_output=True,
+           % (ROOT, timeout, code))
+    r = subprocess.run([PY, "-c", src], cwd=ROOT, capture_output=True,
                        text=True, encoding="utf-8", errors="replace", timeout=timeout + 120)
+    # 子进程出错时不要静默返回空串 —— 至少把 stderr 带出来，
+    # 否则上层只会看到 None，排查方向会被带偏。
+    if r.returncode != 0:
+        return "SUBPROCESS_FAILED=%s" % ((r.stderr or "").strip().replace("\n", " ")[:200])
     return (r.stdout or "").strip()
 
 
@@ -104,13 +113,17 @@ def main() -> int:
     c = Check()
 
     # 在一个干净文档里做三组实验
+    #
+    # ⚠️ 构件库路径**不能写死** —— 原来这里是 `load 'E:/deepseek工作区/...'`，
+    # 换台机器或换个目录就跑不起来（"我这儿能跑"的典型）。
+    # 用 ROOT 推：测试在 tests/，构件库在 dsh_bridge/。
     setup = '''
-load 'E:/deepseek工作区/sketchup-bridge/dsh_parts.rb'
+load File.join('%s', 'dsh_bridge', 'dsh_parts.rb')
 P = DshParts
 m = Sketchup.active_model
 m.entities.clear!
 ents = m.entities
-'''
+''' % ROOT.replace('\\', '/')
     # ── A. 墙：门只留洞、窗有玻璃
     r = ruby(setup + '''
 res = P.wall(ents, 'T-墙', 'h', 1000.0, 100.0, [0.0, 8000.0], 0.0, 2700.0,
