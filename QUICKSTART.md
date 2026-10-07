@@ -140,15 +140,16 @@ dsh_bridge/          ← 装到另一台机器只需要这个目录
   dsh_bridge.rb        socket 服务（改它要重启 SketchUp）
   dsh_handlers.rb      18 条命令（可热重载）
   dsh_loader.rb        工具栏 / 面板
-  dsh_parts.rb         通用构件库（墙 / 楼板 / 螺旋楼梯 / 材质）
+  dsh_parts.rb         构件库（**轮廓推拉 / union 融合 / 分类成组** / 墙 / 楼板 / 楼梯 / 材质）
   install.py           一键安装
   DSH-接手指南.md        **接手先读这份**：架构、坑、约定
 sk_client.py         Python 客户端
 dsh_paths.py         工具定位器
 tools/cad/           DXF 解析、按颜色语义分类、生成 plan
 tools/img/           进件评估、图片读图
-tools/build/         建模驱动、几何校验、出图
+tools/build/         建模驱动、几何校验、出图、**规范数字库 code_standards.py**
 tests/               回归测试（可直接跑，不需要 SketchUp 的也能跑）
+规范速查.md           规范数字（门 / 窗 / 楼梯 / 净高 / 家具），**每条带条文号**
 archive/             开发期的一次性脚本（保留作参考，不参与运行）
 ```
 
@@ -189,7 +190,7 @@ python tests/verify_parts.py --touching-model   # 构件库（会清空当前文
 
 | 文件 | 内容 |
 |---|---|
-| **[DSH-接手指南.md](DSH-接手指南.md)** | **接手先读**：架构、两条技术路线、标准工作流、9 类踩过的坑 |
+| **[DSH-接手指南.md](dsh_bridge/DSH-接手指南.md)** | **接手先读**：架构、两条技术路线、标准工作流、20+ 类踩过的坑 |
 | [HOWTO-CAD直读建模.md](HOWTO-CAD直读建模.md) | DXF → 模型的完整流程 |
 | [HOWTO-读图建模.md](HOWTO-读图建模.md) | 图片 → 模型的完整流程 |
 | [plan_schema.md](plan_schema.md) | 建筑描述 JSON 的字段定义 |
