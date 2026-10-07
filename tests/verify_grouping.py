@@ -442,6 +442,103 @@ puts "VOLS=#{res.map { |x| (x[:volume_m3] || -1).round(4) }.inspect}"
               f"报了 {len(dq)} 条，count={dq[0].get('count') if dq else '-'}")
     total += c8.report("H. 规范核对（GB50096 / GB50352）")
 
+    # ── I. 润色提案（**方向与 H 相反**）
+    #
+    # 用户的定位："主要还是根据平面图来做模型，查规范是为了**润色**，
+    # 平面图里没加的你问用户要不要加，润色的时候不要超乎常理"
+    #
+    # 所以这一段测的是："一张什么都没写的平面，**该提议补什么**"。
+    # 这和 H 组的"你写错了"是两件事，必须都有。
+    c9 = Check()
+    if _ok:
+        try:
+            from code_standards import (suggest_additions, SUGGEST_RULES,
+                                        ACCESSIBILITY, FIRE, DAYLIGHT)
+        except Exception as e:
+            c9.ok("能导入 suggest_additions", False, f"{type(e).__name__}: {e}")
+            ACCESSIBILITY = FIRE = DAYLIGHT = {}
+
+        # ① 极简平面必须**有**提案（H 组在同样输入下是 0 条）
+        minimal = {"walls": [{"name": "W-南", "from": [0, 0], "to": [6000, 0],
+                              "thickness": 240, "height": 2800,
+                              "openings": [{"type": "door", "width": 1000,
+                                            "height": 2100, "label": "入户门"}]}],
+                   "rooms": [], "stairs": [], "furniture": []}
+        sg = suggest_additions(minimal)
+        c9.ok("★ 什么都没写的平面也会提议补东西（H 组同样输入是 0 条）",
+              len(sg) >= 3, f"提了 {len(sg)} 条")
+        c9.ok("★ 提案的 level = 润色（与「规范」拦截区分开）",
+              all(x["level"] == "润色" for x in sg),
+              str({x["level"] for x in sg}))
+
+        # ② 每条提案都要有 why / ask / src，否则用户没法判断要不要加
+        c9.ok("★ 每条提案都带「为什么加」+「问什么」+「出处」",
+              all(x.get("why") and x.get("ask") and x.get("src") for x in sg),
+              "缺字段：" + str([x["at"] for x in sg
+                              if not (x.get("why") and x.get("ask") and x.get("src"))]))
+        c9.ok("★ 每条提案都带建议值或明确的 None（不许含糊）",
+              all("suggest" in x for x in sg))
+
+        # ③ 门扇：没开 joinery 就该提议加门扇
+        c9.ok("★ 门洞没开 joinery → 提议加门扇",
+              any("门扇" in x["ask"] for x in sg),
+              str([x["at"] for x in sg if "门扇" in x["ask"]]))
+
+        # ④ 灯具：平面图上不会有灯，必须提议
+        c9.ok("★ 总是提议布灯（平面图上不会有灯）",
+              any("灯" in x["ask"] for x in sg))
+
+        # ⑤ ★ 关键：`sill: 0` 是「明确写了落地」，不是「没写窗台高」
+        #    判据错会让同一批玻璃被提议"窗台按 900 做"，
+        #    而 check_plan 又说它是落地通高 —— **自相矛盾**
+        with_sill0 = {"walls": [{"name": "W-南", "from": [0, 0], "to": [6000, 0],
+                                 "thickness": 240, "height": 2700,
+                                 "openings": [{"type": "window", "width": 3000,
+                                               "height": 2700, "sill": 0,
+                                               "label": "落地玻璃"}]}],
+                      "rooms": [], "stairs": [], "furniture": []}
+        sg0 = suggest_additions(with_sill0)
+        c9.ok("★ `sill: 0`（明确落地）**不该**被提议加窗台高",
+              not any("窗台高" in x["ask"] for x in sg0),
+              "误报：" + str([x["at"] for x in sg0 if "窗台高" in x["ask"]]))
+        # 但字段整个缺失时**应该**提议
+        no_sill = {"walls": [{"name": "W-南", "from": [0, 0], "to": [6000, 0],
+                              "thickness": 240, "height": 2700,
+                              "openings": [{"type": "window", "width": 1500,
+                                            "height": 1500, "label": "普通窗"}]}],
+                   "rooms": [], "stairs": [], "furniture": []}
+        sg1 = suggest_additions(no_sill)
+        c9.ok("★ 窗台高**字段缺失**时才提议（与上一条配对，防止判据写反）",
+              any("窗台高" in x["ask"] for x in sg1))
+
+        # ⑥ 落地洞口 / 楼梯 → 提议栏杆（含净距）
+        with_stair = dict(with_sill0, stairs=[{"name": "ST1", "height": 2800,
+                                               "steps": 16}])
+        c9.ok("★ 有楼梯 / 落地洞口 → 提议加栏杆（含 110 净距）",
+              any("栏杆" in x["ask"] and "110" in x["ask"]
+                  for x in suggest_additions(with_stair)))
+
+        # ⑦ 规则库本身要干净
+        c9.ok("★ 规则库里没有 railing_gap 那种重复条目",
+              "railing_gap" not in SUGGEST_RULES,
+              "（净距已折进 railing 一条，避免同一位置报两次）")
+        c9.ok("润色规则数量合理", len(SUGGEST_RULES) >= 8,
+              f"{len(SUGGEST_RULES)} 条")
+
+        # ⑧ 无障碍 / 防火 / 采光：用户说"大概查一下就行"
+        #    所以这里只断言**存在且标注了未核原文**，不假装它们是权威
+        c9.ok("★ 无障碍数据在，且明确标注「未核原文」",
+              ACCESSIBILITY.get("门净宽_min", {}).get("v") == 800
+              and "未核原文" in ACCESSIBILITY.get("src", ""),
+              ACCESSIBILITY.get("src", ""))
+        c9.ok("★ 防火数据在，且明确标注「必须问用户建筑高度层数」",
+              "必须问用户" in FIRE.get("楼梯间_形式", {}).get("note", ""),
+              FIRE.get("楼梯间_形式", {}).get("note", "")[:60])
+        c9.ok("采光数据在（窗地比）",
+              abs(DAYLIGHT.get("窗地面积比_卧室起居室_min", {}).get("v", 0) - 1 / 7) < 1e-9,
+              "1/7")
+    total += c9.report("I. 润色提案（平面没写的，提议补什么）")
+
     print(f"\n{'=' * 52}")
     print(f"  合计失败：{total}")
     return 1 if total else 0

@@ -164,13 +164,20 @@ def main() -> int:
             ):
                 if _cand and _cand not in sys.path:
                     sys.path.insert(0, _cand)
-            from code_standards import check_plan
+            from code_standards import check_plan, suggest_additions
             code_qs = check_plan(data)
+            # ── 润色提案（**方向相反**）：平面里没写的，提议补什么
+            #
+            # 用户的定位："主要还是根据平面图来做模型，查规范是为了**润色**，
+            # 平面图里没加的你问用户要不要加，润色的时候不要超乎常理"。
+            # 所以这一段是"你没写 X，要不要我补个说得过去的值"，
+            # 不是"你写错了"。两者都进清单，但 level 不同（`规范` vs `润色`）。
+            polish_qs = suggest_additions(data)
         except Exception as e:  # 核对失败不能让建模流程挂掉
-            code_qs = []
+            code_qs, polish_qs = [], []
             print(f"   ⚠️ 规范核对跳过（{type(e).__name__}: {e}）")
-        if code_qs:
-            qs = list(qs) + code_qs
+        if code_qs or polish_qs:
+            qs = list(qs) + code_qs + polish_qs
         if not qs:
             print("   ✅ 没有需要确认的地方（所有尺寸都标了 source: dim 且置信度足够）")
         else:
