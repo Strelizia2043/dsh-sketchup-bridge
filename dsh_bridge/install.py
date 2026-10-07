@@ -224,6 +224,38 @@ def main():
             print('     ' + b)
         return 1
 
+    # 1b. **安装前**比对：插件目录那份和源文件差多少
+    #
+    # ⚠️ 这个检查必须在**复制之前**做。
+    # 第一版我把它放在"自检"（第 4 步，复制之后）—— 那时文件刚被覆盖，
+    # 当然一致，于是**这个检查恒为真、等于没写**。
+    # 我自己在指南里写过"一个恒为真的检查是假保护"，还是踩了。
+    #
+    # 放在这里才有意义：告诉你"这次重装会改掉哪几个文件"，
+    # 以及"上次装完之后，源文件又动过几个"。
+    stale, fresh = [], []
+    for src, dst in FILES.items():
+        sp = os.path.join(HERE, src)
+        dp = os.path.join(target, dst)
+        if not os.path.exists(dp):
+            continue
+        if not os.path.exists(sp):
+            continue
+        try:
+            with open(sp, 'rb') as f1, open(dp, 'rb') as f2:
+                same = f1.read() == f2.read()
+        except OSError:
+            continue
+        (fresh if same else stale).append(dst)
+    if stale:
+        print()
+        print('  [i] 这 %d 个文件与插件目录**不一致**，本次重装会更新它们：' % len(stale))
+        for d in stale:
+            print('      · %s' % d)
+    elif fresh:
+        print()
+        print('  [OK] 插件目录已是最新（%d 个文件内容一致，重装只是覆盖一次）' % len(fresh))
+
     # 2. 复制
     print()
     print('== 2. 复制文件')
@@ -261,6 +293,36 @@ def main():
     print('   %s 目标目录文件齐全   %s'
           % ('[OK]' if not miss else '[X]',
              ('缺：%s' % miss) if miss else '%d 个' % len(FILES)))
+
+    # ── 双副本一致性：装完之后**逐字节比对**，不一致就明确报出来
+    #
+    # 为什么必须查这条：项目有**两份副本**（工作区 + 插件目录）。
+    # `build_from_plan.rb` 里的加载用的是**绝对路径**，
+    # 但 SketchUp 启动时加载的是**插件目录**那份 ——
+    # 所以"改了工作区、忘了重装"是个**必然会发生**的疏忽，
+    # 症状还很隐蔽：桥能连上、命令能跑，就是行为是旧的。
+    #
+    # 实测踩过：改了 `dsh_parts.rb` 却忘了重装，
+    # 于是"墙没分组"、外面全是线，查了半天才发现跑的是旧副本。
+    drift = []
+    for src, dst in FILES.items():
+        sp = os.path.join(HERE, src) if os.path.exists(os.path.join(HERE, src)) else src
+        dp = os.path.join(target, dst)
+        if not os.path.exists(dp) or not os.path.exists(sp):
+            continue
+        try:
+            with open(sp, 'rb') as f1, open(dp, 'rb') as f2:
+                if f1.read() != f2.read():
+                    drift.append(dst)
+        except OSError:
+            continue
+    if drift:
+        # 复制之后还不一致 —— 说明复制本身失败了（权限、占用、磁盘满…），
+        # 这是**真问题**，要报出来。（源文件有没有更新在 1b 步已经报过，
+        # 那时才有意义；这里只是兜底确认复制真的落了盘。）
+        print('   [X] 复制没生效，仍有 %d 个文件不一致：%s' % (len(drift), ', '.join(drift)))
+        return 1
+    print('   [OK] 复制已落盘   %d 个文件' % len(FILES))
 
     ok_sc = os.path.exists(os.path.join(PROJECT, 'sk_client.py'))
     print('   %s 工作区有 sk_client.py' % ('[OK]' if ok_sc else '[X]'))
