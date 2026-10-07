@@ -158,23 +158,42 @@ def main() -> int:
     # ── 2. 顶板尺寸：必须等于建筑外轮廓，不能是"最厚墙"外扩的结果
     c2 = Check()
     if TOUCHING_MODEL:
+        # ⚠️ 先把文档清空再建。
+        #
+        # `build_from_json.py` 有一条**刻意的安全门**：文档里已有东西时
+        # 拒绝清空（退出码 3），除非显式加 `--discard`。这是防误删用户模型。
+        # 但本测试第 1 步自己就建过一次模型 → 文档不空了 →
+        # 第二次调用被拦 → "能建出模型"**假失败**。
+        #
+        # 这里不改成 `--discard`（那等于测试自己绕过安全门，万一它作用在
+        # 用户真在意的文档上就真删了）。改成**测试自己负责清场**：
+        # 反正加了 --touching-model 就代表"当前文档可以被动"。
+        ruby("Sketchup.active_model.entities.clear!")
         rc, o, e = sh("build_from_json.py", out, "--confirm")
-        c2.ok("能建出模型", rc == 0 and "构件" in o)
+        c2.ok("能建出模型", rc == 0 and "构件" in o,
+              f"退出码 {rc}" + (f"，{e.strip()[:110]}" if rc else ""))
     else:
         print("\n   \u23ed  跳过建模与几何检查（未加 --touching-model）："
               "这几步会重建当前模型")
         rc, o = 1, ""
     if rc == 0:
+        # ⚠️ 排除"水平大板"来算建筑外轮廓：顶板/屋顶/房檐都会**出挑**，
+        # 算进去的话轮廓会变大，楼梯之类就被误判成越界。
+        #
+        # 判据别再用"名字含顶板" —— 屋顶已按分组契约改名为 `RF-屋顶`，
+        # 不再含"顶板"两字，于是这个排除失效（实测：楼梯 4 块被误报越界）。
+        # 现在按**前缀**排除，和 DshParts::CATEGORIES 的命名对齐。
         g = ruby('''
 m = Sketchup.active_model
 xs=[]; ys=[]
+SLAB = %w[RF- EV- CE- MZ- FL-]
 m.entities.grep(Sketchup::Group).each do |gr|
-  next if gr.name.to_s.include?("顶板")
+  next if SLAB.any? { |p| gr.name.to_s.start_with?(p) }
   b = gr.bounds
   xs << b.min.x*25.4; xs << b.max.x*25.4
   ys << b.min.y*25.4; ys << b.max.y*25.4
 end
-slab = m.entities.grep(Sketchup::Group).find { |x| x.name.to_s.include?("顶板") }
+slab = m.entities.grep(Sketchup::Group).find { |x| x.name.to_s.start_with?("RF-") }
 sb = slab.bounds
 puts "BODY %.2f %.2f %.2f %.2f" % [xs.min, xs.max, ys.min, ys.max]
 puts "SLAB %.2f %.2f %.2f %.2f" % [sb.min.x*25.4, sb.max.x*25.4, sb.min.y*25.4, sb.max.y*25.4]
