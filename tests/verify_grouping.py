@@ -127,6 +127,50 @@ def main() -> int:
         print("      确认没有要紧东西时，加 --touching-model 再跑。")
         return 0
 
+    # ── 保护用户文档（**这条是踩了大坑补的**）
+    #
+    # 用户的原话："能不能不要每次最后一步交给我的时候，
+    #               都变成不知道哪来的模型"。
+    #
+    # 根因就是这类测试：它 `m.entities.clear!` 把用户正在看的模型清掉，
+    # 建一堆测试几何，**跑完也不还原**。于是文档标题还是用户那个名字，
+    # 内容却变成了"不知哪来的模型"。
+    #
+    # 措施：跑测试前先把用户文档**原样存一份**到 _test_backup/，
+    # 跑完把路径打出来告诉用户怎么恢复。**不自动覆盖回去**
+    # （自动覆盖更危险：万一用户中途改了东西就被抹了）。
+    _bak = None
+    try:
+        _c = subprocess.run(
+            [PY, "-c",
+             "import sys; sys.path.insert(0, r'%s')\n"
+             "from sk_client import SC\n"
+             "import os\n"
+             "c = SC(timeout=120)\n"
+             "info = c.ruby('m=Sketchup.active_model; "
+             "puts [m.title.to_s, m.path.to_s, "
+             "m.entities.grep(Sketchup::Group).size.to_s].join(\"|\")', undo=False)\n"
+             "parts = info.get('output','').strip().split('|')\n"
+             "n = int(parts[2]) if len(parts) > 2 and parts[2].isdigit() else 0\n"
+             "if n == 0:\n"
+             "    print('SKIP|文档是空的，无需备份')\n"
+             "else:\n"
+             "    d = os.path.join(r'%s', '_test_backup')\n"
+             "    os.makedirs(d, exist_ok=True)\n"
+             "    p = os.path.join(d, (parts[0] or 'untitled').replace('/', '_') + '_备份.skp')\n"
+             "    r = c.save(path=p, overwrite=True)\n"
+             "    print('OK|%%s|%%d' %% (p, n))" % (ROOT, ROOT)],
+            cwd=ROOT, capture_output=True, text=True,
+            encoding="utf-8", errors="replace", timeout=600)
+        line = (r_out := (_c.stdout or "").strip().splitlines())
+        if line and line[-1].startswith("OK|"):
+            _, _bak, _n = line[-1].split("|")
+            print(f"   🛟 已把你当前的文档备份到：{os.path.relpath(_bak, ROOT)}（{_n} 个组）")
+        else:
+            print("   🛟 当前文档是空的，无需备份")
+    except Exception as e:
+        print(f"   ⚠️ 备份失败（{type(e).__name__}）——**建议先自己存盘再跑本测试**")
+
     total = 0
 
     # ── A. 轮廓推拉：四面墙

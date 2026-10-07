@@ -42,6 +42,7 @@ import argparse
 import json
 import os
 import sys
+import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from sk_client import SC, BridgeError  # noqa: E402
@@ -76,6 +77,43 @@ def _find_generator(name="build_from_plan.rb"):
 
 
 GENERATOR = _find_generator()
+
+
+def _say_what_i_built(c, data, args):
+    """收尾时把"这是给你的什么模型"说清楚。
+
+    用户的原话："能不能不要每次最后一步交给我的时候，
+                   都变成不知道哪来的模型"。
+
+    症状：文档标题是旧的、内容是新的，交接时只给一张图，
+    用户回到 SketchUp 看到的东西和图上对不上，也不知道该存成什么。
+
+    ⚠️ 抽成函数的原因：`main()` 里有**两条返回路径**
+    （正常路径，和"报告被截断只显示摘要"那条），
+    第一版只加在正常路径上，结果大模型走截断路径时**收尾根本不打印** ——
+    正好是最需要它的场合。
+    """
+    print()
+    print("=" * 62)
+    print("  ✅ 建完了 —— 这就是给你的模型")
+    print(f"     数据来源   {os.path.basename(args.plan)}")
+    print(f"     模型名称   {data.get('meta', {}).get('name', '(未命名)')}")
+    try:
+        _i = c.info(scope="top", limit=400)
+        from collections import Counter as _C
+        _names = [e.get("name") or e["type"] for e in _i["entities"]]
+        _pref = _C(n.split("-")[0] for n in _names)
+        print(f"     顶层组     {_i['counts']['top_level']} 个")
+        print("     组成       " + "  ".join(
+            f"{k}×{v}" for k, v in _pref.most_common(10)))
+    except BridgeError:
+        print("     顶层组     （读不到，桥报错）")
+    print()
+    print("     ⚠️ 我只建在了内存里，**没有替你存盘**。")
+    print("     要留着它，在 SketchUp 里存成：")
+    print(f"       {os.path.splitext(os.path.basename(args.plan))[0]}.skp")
+    print("     （或者告诉我，我替你存）")
+    print("=" * 62)
 
 
 def main() -> int:
@@ -242,6 +280,33 @@ def main() -> int:
             print("      这个入口会先清空模型再重建，现有内容会丢。")
             print("      确实要覆盖请加 --discard；想保留请先自己存盘。")
             return 3
+
+        # ── 清空前**自动备份**（即使用户加了 --discard）
+        #
+        # 用户的原话："能不能不要每次最后一步交给我的时候，
+        #               都变成不知道哪来的模型"。
+        #
+        # `--discard` 是"我知道会丢，继续"的意思，但**不该真的丢**。
+        # 这里在清空之前把当前文档存一份到 `_test_backup/`，
+        # 并**把路径打出来** —— 出事了有地方找，而且你知道东西在哪。
+        if n_i > 0:
+            try:
+                _bakdir = os.path.join(ROOT, "_test_backup")
+                os.makedirs(_bakdir, exist_ok=True)
+                _stamp = time.strftime("%m%d_%H%M%S")
+                _safe = "".join(c for c in (title or "untitled")
+                                if c not in '\\/:*?"<>|')[:40]
+                _bp = os.path.join(_bakdir, f"{_safe}_{_stamp}.skp")
+                _rr = c.save(path=_bp.replace("\\", "/"), overwrite=True)
+                print()
+                print(f"   🛟 清空前已备份：{os.path.relpath(_bp, ROOT)}"
+                      f"（{_rr.get('bytes', 0) // 1024} KB，{ngrp} 个组）")
+            except Exception as _e:
+                print()
+                print(f"   ⚠️ 清空前备份失败（{type(_e).__name__}: {str(_e)[:80]}）")
+                print("      **现在 Ctrl+C 还来得及** —— 5 秒后继续清空")
+                time.sleep(5)
+
         print()
         print("== 清空模型")
         try:
@@ -370,6 +435,7 @@ def main() -> int:
             print()
             tl = sum(1 for _ in (report.get("brief") or []))
             print(f"   ── 摘要共 {tl} 个构件（细节请在模型里用 diag 脚本查看）")
+            _say_what_i_built(c, data, args)
             return 0
         print(f"   changed={r['changed']} delta={r['delta']}")
         print(f"   构件 {len(report.get('built', []))} 个，顶层组 {report.get('total_groups')}")
@@ -531,6 +597,13 @@ def main() -> int:
                 print(f"   ✅ {s['path']}")
             except BridgeError as e:
                 print(f"   ❌ {name}: [{e.code}] {str(e)[:200]}")
+
+    # ── 收尾：**让这个模型自报身份**
+    #
+    # 用户的原话："能不能不要每次最后一步交给我的时候，
+    #               都变成不知道哪来的模型"。
+    # 函数体见 `_say_what_i_built`（抽出来是因为 main 有两条返回路径）。
+    _say_what_i_built(c, data, args)
 
     return 0
 
