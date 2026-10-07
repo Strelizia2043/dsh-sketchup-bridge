@@ -575,11 +575,11 @@
  "furniture": [],
  "materials": {
   "default": {
-   "name": "DSH_Silver",
+   "name": "DSH_Stone",
    "color": [
-    176,
-    180,
-    186
+    226,
+    224,
+    219
    ]
   },
   "rules": [
@@ -587,27 +587,99 @@
     "match": "-玻璃$",
     "name": "DSH_Glass",
     "color": [
-     178,
-     214,
-     226
-    ]
-   },
-   {
-    "match": "-门扇$",
-    "name": "DSH_Wood",
-    "color": [
-     140,
-     100,
-     66
+     150,
+     196,
+     212
     ]
    },
    {
     "match": "-(框|上槛|下槛)\\d*$",
     "name": "DSH_Frame",
     "color": [
-     168,
-     168,
-     164
+     120,
+     124,
+     130
+    ]
+   },
+   {
+    "match": "-门扇$",
+    "name": "DSH_Wood",
+    "color": [
+     126,
+     92,
+     62
+    ]
+   },
+   {
+    "match": "^WO-外墙-Z(0_900|2100_2400|2400_3000|3200_4100|5300_5600|5600_5900|5900_6200)$",
+    "name": "DSH_BandStone",
+    "color": [
+     122,
+     124,
+     128
+    ]
+   },
+   {
+    "match": "^(WO-|WI-|WP-)",
+    "name": "DSH_Stone",
+    "color": [
+     226,
+     224,
+     219
+    ]
+   },
+   {
+    "match": "^(F1-|F2-|FL-|MZ-)",
+    "name": "DSH_Stone",
+    "color": [
+     200,
+     196,
+     190
+    ]
+   },
+   {
+    "match": "^R-.*-地面$",
+    "name": "DSH_FloorBrown",
+    "color": [
+     166,
+     124,
+     84
+    ]
+   },
+   {
+    "match": "^R-.*-天花$",
+    "name": "DSH_Ceiling",
+    "color": [
+     242,
+     241,
+     238
+    ]
+   },
+   {
+    "match": "^(RF-|EV-)",
+    "name": "DSH_RoofMetal",
+    "color": [
+     92,
+     94,
+     98
+    ]
+   },
+   {
+    "match": "^E-",
+    "name": "DSH_Stone",
+    "color": [
+     226,
+     224,
+     219
+    ]
+   },
+   {
+    "match": "^ST",
+    "name": "DSH_Stone",
+    "color": [
+     214,
+     210,
+     204
     ]
    },
    {
@@ -617,60 +689,6 @@
      166,
      124,
      82
-    ]
-   },
-   {
-    "match": "^R-.*-地面$",
-    "name": "DSH_FloorBrown",
-    "color": [
-     186,
-     140,
-     92
-    ]
-   },
-   {
-    "match": "^R-.*-天花$",
-    "name": "DSH_Stone",
-    "color": [
-     212,
-     206,
-     196
-    ]
-   },
-   {
-    "match": "^(FL-|F1-|F2-)",
-    "name": "DSH_FloorBrown",
-    "color": [
-     186,
-     140,
-     92
-    ]
-   },
-   {
-    "match": "^(RF-|EV-)",
-    "name": "DSH_Roof",
-    "color": [
-     150,
-     148,
-     144
-    ]
-   },
-   {
-    "match": "^(ST-)",
-    "name": "DSH_Stone",
-    "color": [
-     212,
-     206,
-     196
-    ]
-   },
-   {
-    "match": "^(WO-|WI-|WP-)",
-    "name": "DSH_Silver",
-    "color": [
-     176,
-     180,
-     186
     ]
    }
   ]

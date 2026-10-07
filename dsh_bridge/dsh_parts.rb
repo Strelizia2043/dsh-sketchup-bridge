@@ -556,9 +556,11 @@ module DshParts
   # walls:   [{ 'name', 'from'=>[x,y], 'to'=>[x,y], 'thickness', 'height',
   #             'base_z', 'kind'(可省), 'openings'=>[...] }, ...]
   # 返回     [{ category:, z0:, z1:, group:, volume_m3:, want:, ok: }, ...]
-  def build_walls(ents, walls, envelope: nil, mat: nil)
+  def build_walls(ents, walls, envelope: nil, mat: nil, joinery_builder: nil,
+                  joinery_out: nil)
     ws = Array(walls)
     return [] if ws.empty?
+    joinery = joinery_out || []
 
     # ── 关键：**按"楼层区间"分组后再分带**
     #
@@ -643,7 +645,32 @@ module DshParts
                          ok: r[:volume_m3] && (r[:volume_m3] - want).abs < 0.01)
         end
       end
+
+      # ── 门窗扇 / 框（opt-in：墙上写了 `joinery: true` 才建）
+      #
+      # ⚠️ 这是补的一个**能力缺口**：`build_walls`（分组模式）原来**完全不建
+      # joinery** —— 那是 `build_wall`（逐块模式）才做的事。于是分组模式下
+      # 窗永远只是墙上的一个**空洞**，没有玻璃、没有框，立面看着像没做完。
+      #
+      # 做法：把 `build_joinery` 作为**回调**传进来（几何细节在生成器里，
+      # 构件库不重复实现一遍），这里只负责在正确的时机调用。
+      # 一面墙只调一次（不是每个分带都调，否则门窗会被重复建 N 遍）。
+      next unless joinery_builder
+      layer.each do |w|
+        next unless w['joinery']
+        (w['openings'] || []).each_with_index do |o, oi|
+          jr = begin
+            joinery_builder.call(w, o, oi)
+          rescue StandardError => e
+            { name: "#{w['name']}-#{o['label'] || oi + 1}",
+              error: "#{e.class}: #{e.message}" }
+          end
+          joinery << jr if jr
+        end
+      end
     end
+    # 返回值**保持是数组**（调用方原样在用）；joinery 通过 `joinery_out` 带出，
+    # 避免改返回结构把 `build_from_plan.rb` 那边搞坏。
     out
   end
 

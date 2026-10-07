@@ -718,6 +718,61 @@ puts "MID=#{mid ? mid[:faces] : -1}"
           f"通过 {v.get('VOLOK')}")
     total += c12.report("L. 墙体分带（防「墙面分割线」）")
 
+    # ── M. 分组模式必须也建门窗扇/框
+    #
+    # 踩过的**能力缺口**：`build_walls`（分组模式）原来完全不建 joinery ——
+    # 那是 `build_wall`（逐块模式）才做的事。于是分组模式下窗永远只是墙上
+    # 一个**空洞**，没有玻璃、没有框，立面看着像没做完（实测别墅外壳第一次
+    # 就是这样：18 个组、0 块玻璃）。
+    #
+    # 修法：把 `build_joinery` 作为**回调**传进 `build_walls`
+    # （几何细节在生成器里，构件库不重复实现），构件库负责在正确时机调用。
+    c13 = Check()
+    r = ruby(SETUP + '''
+walls = [{ 'name' => 'W-南', 'from' => [0.0, 0.0], 'to' => [6000.0, 0.0],
+           'thickness' => 240.0, 'height' => 3000.0, 'base_z' => 0.0,
+           'joinery' => true,
+           'openings' => [{ 'type' => 'window', 'u' => 1500.0, 'width' => 1500.0,
+                            'height' => 1500.0, 'sill' => 900.0 },
+                          { 'type' => 'door', 'u' => 4000.0, 'width' => 1000.0,
+                            'height' => 2100.0, 'sill' => 0.0 }] }]
+calls = []
+builder = lambda do |w, o, i|
+  calls << [w['name'], o['label'] || i, o['type']]
+  # 只记调用，不真建几何（这部分由生成器负责）
+  nil
+end
+acc = []
+res = DshParts.build_walls(ents, walls, joinery_builder: builder, joinery_out: acc)
+puts "GROUPS=#{res.size}"
+puts "CALLS=#{calls.size}"
+puts "TYPES=#{calls.map { |c| c[2] }.inspect}"
+puts "ISARRAY=#{res.is_a?(Array)}"
+''')
+    v = kv(r)
+    c13.ok("★ 分组模式下**门窗回调被调用**（防「只有洞没有玻璃」）",
+          v.get("CALLS") == "2", f"调用 {v.get('CALLS')} 次（期望 2：一窗一门）")
+    c13.ok("★ 传给回调的类型正确（窗 / 门分别传）",
+          "window" in (v.get("TYPES") or "") and "door" in (v.get("TYPES") or ""),
+          v.get("TYPES"))
+    c13.ok("★ `build_walls` 返回值**仍是数组**（不许改结构搞坏调用方）",
+          v.get("ISARRAY") == "true", v.get("ISARRAY"))
+    # 配对：不给回调时不该崩
+    r2 = ruby(SETUP + '''
+walls = [{ 'name' => 'W-南', 'from' => [0.0, 0.0], 'to' => [6000.0, 0.0],
+           'thickness' => 240.0, 'height' => 3000.0, 'base_z' => 0.0,
+           'joinery' => true,
+           'openings' => [{ 'type' => 'window', 'u' => 1500.0, 'width' => 1500.0,
+                            'height' => 1500.0, 'sill' => 900.0 }] }]
+res = DshParts.build_walls(ents, walls)
+puts "GROUPS=#{res.size}"
+puts "OK=#{res.all? { |x| x[:group] }}"
+''')
+    v2 = kv(r2)
+    c13.ok("★ 不给回调时不崩（回调是可选的）",
+          v2.get("OK") == "true", f"组数 {v2.get('GROUPS')}")
+    total += c13.report("M. 分组模式的 joinery（防「窗只有洞」）")
+
     print(f"\n{'=' * 52}")
     print(f"  合计失败：{total}")
     return 1 if total else 0

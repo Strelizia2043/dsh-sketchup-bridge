@@ -1897,7 +1897,35 @@ end
 
     if wall_mode == 'grouped' && !walls_data.empty? && defined?(DshParts)
       begin
-        res = DshParts.build_walls(ents, walls_data)
+        # 门窗扇/框的构造回调。
+        #
+        # ⚠️ 为什么要用回调：`DshParts.build_walls` 只做"墙的实体分组"，
+        # 它不知道 joinery 的几何细节（框料截面、玻璃厚、门扇缝…）。
+        # 那些在生成器的 `build_joinery` 里。所以把生成器的方法包成 lambda 传进去，
+        # 构件库只管**在正确的时机调它**。
+        #
+        # ⚠️ 洞口 `u` 的基准：`build_joinery` 里 `u` 是**从墙的 from 端量起**的。
+        # 分组模式会对墙端做延伸（`wall_end_extensions`），延伸后 from 端
+        # 往外挪了 `ext_from` —— 所以要 `u + ext_from`，否则**窗会整体漂移**
+        # （这个坑逐块模式里踩过：南墙延伸 120mm 后门框跑到 1080..1140）。
+        # 这里为稳妥起见**不做延伸**：窗框只需要轴线方向，用原始 from 即可，
+        # 但 `u` 也要用原始基准，两者一致就不会漂。
+        joinery_builder = lambda do |w, o, idx|
+          fr = w['from'].map(&:to_f)
+          to = w['to'].map(&:to_f)
+          vx = to[0] - fr[0]
+          vy = to[1] - fr[1]
+          len = Math.hypot(vx, vy)
+          next nil if len < 1e-6
+          ux = vx / len
+          uy = vy / len
+          build_joinery(ents, fr[0], fr[1], ux, uy, -uy, ux,
+                        w['thickness'].to_f, o, w['name'], idx)
+        end
+        joinery_acc = []
+        res = DshParts.build_walls(ents, walls_data,
+                                   joinery_builder: joinery_builder,
+                                   joinery_out: joinery_acc)
         res.each do |r|
           if r[:group]
             r[:group].material = material_for(r[:group].name, nil) rescue nil
@@ -1916,6 +1944,11 @@ end
           else
             report[:errors] << "墙组 #{r[:category]}: #{r[:error]}"
           end
+        end
+        # 门窗扇/框（分组模式下由回调产出）
+        report[:joinery_n] = joinery_acc.size
+        joinery_acc.each do |j|
+          report[:errors] << "门窗 #{j[:name]}: #{j[:error]}" if j.is_a?(Hash) && j[:error]
         end
       rescue StandardError => e
         report[:errors] << "分类成组失败（#{e.class}: #{e.message}），已回退到逐块做法"
